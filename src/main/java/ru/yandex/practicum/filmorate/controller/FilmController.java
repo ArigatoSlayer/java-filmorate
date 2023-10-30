@@ -35,13 +35,11 @@ public class FilmController {
     }
 
     @PutMapping("/films")
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public void updateFilm(@Valid @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.info("FilmId: " + film.getId() + " update");
-            return films.get(film.getId());
         }
-        return film;
     }
 
     private boolean isValidFilm(Film film) {
