@@ -40,8 +40,6 @@ public class FilmController {
             films.put(film.getId(), film);
             log.info("FilmId: " + film.getId() + " update");
             return films.get(film.getId());
-        } else {
-            createFilm(film);
         }
         return film;
     }
