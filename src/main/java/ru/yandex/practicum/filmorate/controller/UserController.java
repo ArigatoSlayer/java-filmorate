@@ -27,6 +27,9 @@ public class UserController {
     public User createUser(@Valid @RequestBody User user) {
         log.info("method: Post. Model: User." + user.getLogin());
         if (isValidUser(user)) {
+            if (user.getName() == null || user.getName().trim().isEmpty()) {
+                user.setName(user.getLogin());
+            }
             user.setId(id);
             users.put(id, user);
             id++;

@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -17,9 +18,9 @@ public class FilmController {
     private int id = 1;
 
     @GetMapping("/films")
-    public Map<Integer, Film> getFilms() {
+    public List<Film> getFilms() {
         log.trace("method: Get. Model: Film");
-        return films;
+        return List.copyOf(films.values());
     }
 
     @PostMapping("/films")
