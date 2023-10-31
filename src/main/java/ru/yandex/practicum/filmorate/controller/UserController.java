@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -17,34 +18,30 @@ public class UserController {
     private int id = 1;
 
     @GetMapping("/users")
-    public Map<Integer, User> getAllUsers() {
+    public List<User> getAllUsers() {
         log.trace("method: Get. Model: User");
-        return users;
+        return List.copyOf(users.values());
     }
 
     @PostMapping("/users")
-    public User createUser(@Valid @RequestBody User user) {
+    public void createUser(@Valid @RequestBody User user) {
         log.info("method: Post. Model: User." + user.getLogin());
-        if (isValidUser(user)) {
+        if (isValidUser(user)){
             user.setId(id);
+            users.put(id, user);
             id++;
-            if (user.getName().isEmpty()) {
-                user.setName(user.getLogin());
-            }
-            users.put(user.getId(), user);
-            log.info("UserId: " + user.getId() + " added");
+            log.info("User created" + user.getLogin() + "   " + user.getId());
         }
-        return users.get(user.getId());
     }
 
     @PutMapping("/users")
-    public User updateUser(@Valid @RequestBody User user) {
+    public void updateUser(@Valid @RequestBody User user) {
+        log.info("method: Put. Model: User." + user.getLogin());
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("UserId: " + user.getId() + " update");
-            return users.get(user.getId());
-        } else {
-            return createUser(user);
+        }else {
+            throw new RuntimeException("Id " + user.getId() + " не существует");
         }
     }
 
