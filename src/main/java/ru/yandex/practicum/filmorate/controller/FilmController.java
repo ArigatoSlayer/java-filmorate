@@ -23,24 +23,27 @@ public class FilmController {
     }
 
     @PostMapping("/films")
-    public void createFilm(@Valid @RequestBody Film film) {
+    public Film createFilm(@Valid @RequestBody Film film) {
         log.info("method: Post. Model: Film. FilmName");
         if (isValidFilm(film)) {
             film.setId(id);
             films.put(id, film);
             id++;
             log.info("Created film" + film.getName() + "    " + film.getId());
-        } else {
-            throw new RuntimeException("Id " + film.getId() + " не существует");
         }
+        return film;
     }
 
     @PutMapping("/films")
-    public void updateFilm(@Valid @RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.info("FilmId: " + film.getId() + " update");
+        } else {
+            log.error("Не удалось обновить " + film.getId() + "  id не найден");
+            throw new RuntimeException("Id " + film.getId() + " не существует");
         }
+        return film;
     }
 
     private boolean isValidFilm(Film film) {

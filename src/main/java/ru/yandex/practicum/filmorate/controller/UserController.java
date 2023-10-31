@@ -24,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public void createUser(@Valid @RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
         log.info("method: Post. Model: User." + user.getLogin());
         if (isValidUser(user)) {
             user.setId(id);
@@ -32,17 +32,20 @@ public class UserController {
             id++;
             log.info("User created" + user.getLogin() + "   " + user.getId());
         }
+        return user;
     }
 
     @PutMapping("/users")
-    public void updateUser(@Valid @RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         log.info("method: Put. Model: User." + user.getLogin());
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("UserId: " + user.getId() + " update");
         } else {
+            log.error("Не удалось обновить " + user.getId() + "  id не найден");
             throw new RuntimeException("Id " + user.getId() + " не существует");
         }
+        return user;
     }
 
     private boolean isValidUser(User user) {

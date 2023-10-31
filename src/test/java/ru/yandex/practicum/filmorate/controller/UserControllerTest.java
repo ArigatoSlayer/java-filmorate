@@ -39,7 +39,7 @@ class UserControllerTest {
 
     @Test
     void updateUser() {
-        User user = new User(0,"mail@mail.ru", "lol", "qwe", LocalDate.of(2022, 12, 3));
+        User user = new User(0, "mail@mail.ru", "lol", "qwe", LocalDate.of(2022, 12, 3));
         controller.createUser(user);
         controller.updateUser(user);
         Assertions.assertEquals(user.hashCode(), controller.getAllUsers().get(0).hashCode());
