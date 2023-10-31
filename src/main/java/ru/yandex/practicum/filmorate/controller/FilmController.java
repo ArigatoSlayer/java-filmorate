@@ -25,12 +25,12 @@ public class FilmController {
     @PostMapping("/films")
     public void createFilm(@Valid @RequestBody Film film) {
         log.info("method: Post. Model: Film. FilmName");
-        if (isValidFilm(film)){
+        if (isValidFilm(film)) {
             film.setId(id);
             films.put(id, film);
             id++;
             log.info("Created film" + film.getName() + "    " + film.getId());
-        }else {
+        } else {
             throw new RuntimeException("Id " + film.getId() + " не существует");
         }
     }

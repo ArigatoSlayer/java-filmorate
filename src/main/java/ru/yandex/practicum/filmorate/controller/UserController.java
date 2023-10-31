@@ -26,7 +26,7 @@ public class UserController {
     @PostMapping("/users")
     public void createUser(@Valid @RequestBody User user) {
         log.info("method: Post. Model: User." + user.getLogin());
-        if (isValidUser(user)){
+        if (isValidUser(user)) {
             user.setId(id);
             users.put(id, user);
             id++;
@@ -40,7 +40,7 @@ public class UserController {
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("UserId: " + user.getId() + " update");
-        }else {
+        } else {
             throw new RuntimeException("Id " + user.getId() + " не существует");
         }
     }
