@@ -29,7 +29,7 @@ class FilmControllerTest {
     void createFilm() {
         Film film = new Film(0, "aaa", "asd", LocalDate.of(2022, 12, 12), 40);
         controller.createFilm(film);
-        Assertions.assertEquals(film.hashCode(), controller.getFilms().get(1).hashCode());
+        Assertions.assertEquals(film.hashCode(), controller.getFilms().get(0).hashCode());
     }
 
     @Test
@@ -64,9 +64,7 @@ class FilmControllerTest {
         controller.createFilm(film);
         Film filmId1 = new Film(1, "nas", "das", LocalDate.of(2022, 12, 12), 30);
         controller.updateFilm(filmId1);
-        Assertions.assertEquals("nas", controller.getFilms().get(1).getName());
-        Assertions.assertEquals("das", controller.getFilms().get(1).getDescription());
-        Assertions.assertEquals(30, controller.getFilms().get(1).getDuration());
+        Assertions.assertEquals(filmId1.hashCode(), controller.getFilms().get(0).hashCode());
     }
 
 }
