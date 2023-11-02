@@ -25,7 +25,7 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film createFilm(@Valid @RequestBody Film film) {
-        log.info("method: Post. Model: Film. FilmName");
+        log.info("method: Post. Model: Film. FilmName" + film.getId());
         if (isValidFilm(film)) {
             film.setId(id);
             films.put(id, film);

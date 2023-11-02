@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 
 class UserControllerTest {
-    UserController controller;
+    private UserController controller;
 
     @BeforeEach
     void setController() {

@@ -19,7 +19,6 @@ public class User {
     @NotEmpty(message = "Поле не может быть пустым")
     private String login;
     private String name;
-    //    @Past(message = "Дата рождение написано в будущем времени")
     @NotEmpty(message = "Поле не может быть пустым")
     private LocalDate birthday;
 }
