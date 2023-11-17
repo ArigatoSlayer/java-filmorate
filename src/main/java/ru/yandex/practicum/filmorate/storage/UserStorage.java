@@ -13,4 +13,6 @@ public interface UserStorage {
     User createUser(@Valid @RequestBody User user);
 
     User updateUser(@Valid @RequestBody User user);
+
+    User getUserById(int id);
 }

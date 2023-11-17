@@ -17,7 +17,7 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
 
     private Map<Integer, User> users = new HashMap<>();
-    private int id = 0;
+    private int id = 1;
 
     @Override
     public List<User> getAllUsers() {
@@ -51,7 +51,12 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    public boolean isValidUser(User user) {
+    @Override
+    public User getUserById(int id) {
+        return users.get(id);
+    }
+
+    private boolean isValidUser(User user) {
         if (user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
             throw new ValidationException("Email пустой или не содержит: @");
         } else if (user.getLogin().isEmpty() || user.getLogin().contains(" ")) {

@@ -34,7 +34,7 @@ public class UserService {
 
 
     public User getUserById(Integer id) {
-        return storage.getAllUsers().get(id - 1);
+        return storage.getUserById(id);
     }
 
     public User addToFriend(int userId, int friendId) {
@@ -76,7 +76,6 @@ public class UserService {
                 }
             }
         }
-
         return mutualFriends;
     }
 }
