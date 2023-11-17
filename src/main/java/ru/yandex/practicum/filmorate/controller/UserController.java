@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -60,7 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/friends/common/{friendId}")
-    public List<User> mutalFriend(@PathVariable int userId, @PathVariable int friendId){
+    public List<User> mutalFriend(@PathVariable int userId, @PathVariable int friendId) {
         return service.getMutualFriends(userId, friendId);
     }
 }
