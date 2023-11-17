@@ -17,7 +17,7 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
 
     private Map<Integer, User> users = new HashMap<>();
-    private int id = 1;
+    private int id = 0;
 
     @Override
     public List<User> getAllUsers() {
