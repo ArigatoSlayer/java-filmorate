@@ -62,4 +62,5 @@ public class UserController {
     public List<User> mutalFriend(@PathVariable int userId, @PathVariable int friendId) {
         return service.getMutualFriends(userId, friendId);
     }
+
 }
