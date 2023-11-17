@@ -34,7 +34,7 @@ public class UserService {
 
 
     public User getUserById(Integer id) {
-        return storage.getAllUsers().get(id-1);
+        return storage.getAllUsers().get(id - 1);
     }
 
     public User addToFriend(int userId, int friendId) {
@@ -44,7 +44,7 @@ public class UserService {
             user.getFriends().add(user2.getId());
             user2.getFriends().add(user.getId());
             return getUserById(userId);
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new NotFoundException(e.getMessage());
         }
     }
@@ -67,9 +67,9 @@ public class UserService {
 
     public List<User> getMutualFriends(Integer userId, Integer friendId) {
         List<User> mutualFriends = new ArrayList<>();
-        if (getUserById(userId).getFriends().isEmpty()){
+        if (getUserById(userId).getFriends().isEmpty()) {
             return mutualFriends;
-        }else {
+        } else {
             for (Integer id : getUserById(userId).getFriends()) {
                 if (getUserById(friendId).getFriends().contains(id)) {
                     mutualFriends.add(getUserById(id));
