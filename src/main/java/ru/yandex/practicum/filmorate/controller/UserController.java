@@ -59,8 +59,6 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/friends/common/{friendId}")
-    public List<User> mutalFriend(@PathVariable int userId, @PathVariable int friendId) {
-        return service.getMutualFriends(userId, friendId);
-    }
+    public List<User> mutalFriend(@PathVariable int userId, @PathVariable int friendId) {return service.getMutualFriends(userId, friendId);}
 
 }
