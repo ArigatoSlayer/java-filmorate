@@ -50,11 +50,16 @@ public class UserService {
     }
 
     public User deleteFriend(int userId, int friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
-        return getUserById(userId);
+        if (getUserById(userId).getFriends().contains(friendId)) {
+            User user = getUserById(userId);
+            User friend = getUserById(friendId);
+            user.getFriends().remove(friendId);
+            friend.getFriends().remove(userId);
+            return getUserById(userId);
+        } else {
+            throw new NotFoundException(
+                    "Пользователь с id: " + userId + "не найден или не имеет в друзьях друга с id: " + friendId);
+        }
     }
 
     public List<User> getAllFriends(int userId) {

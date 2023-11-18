@@ -22,6 +22,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         if (films.containsKey(film.getId())) {
+            if (film.getLikes() == null) {
+                film.setLikes(films.get(film.getId()).getLikes());
+            }
             films.put(film.getId(), film);
             log.info("FilmId: " + film.getId() + " update");
         } else {
@@ -50,10 +53,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(int id) {
-        try {
+        if (films.containsKey(id)) {
             return films.get(id);
-        } catch (RuntimeException e) {
-            throw new NotFoundException(e.getMessage());
+        } else {
+            throw new NotFoundException("Фильм c id: " + id + " не найден");
         }
     }
 

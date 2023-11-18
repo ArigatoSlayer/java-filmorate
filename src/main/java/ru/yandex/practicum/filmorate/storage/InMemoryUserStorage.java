@@ -29,6 +29,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User createUser(User user) {
         if (isValidUser(user)) {
             user.setFriends(new HashSet<>());
+            log.info(user.getName() + "FriendsList not null " + user.getFriends());
             if (StringUtils.isBlank(user.getName())) {
                 user.setName(user.getLogin());
             }
@@ -43,6 +44,9 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User updateUser(User user) {
         if (users.containsKey(user.getId())) {
+            if (user.getFriends() == null) {
+                user.setFriends(users.get(user.getId()).getFriends());
+            }
             users.put(user.getId(), user);
             log.info("UserId: " + user.getId() + " update");
         } else {
@@ -54,10 +58,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUserById(int id) {
-        try {
+        if (users.containsKey(id)) {
             return users.get(id);
-        } catch (RuntimeException e) {
-            throw new NotFoundException(e.getMessage());
+        } else {
+            throw new NotFoundException("Пользователь c id: " + id + " не найден");
         }
     }
 
