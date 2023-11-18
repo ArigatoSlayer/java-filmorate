@@ -49,7 +49,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(int id) {
-        return getFilms().get(id);
+        return films.get(id);
     }
 
     public boolean isValidFilm(Film film) {
