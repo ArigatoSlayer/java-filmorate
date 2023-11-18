@@ -40,9 +40,9 @@ public class UserService {
     public User addToFriend(int userId, int friendId) {
         try {
             User user = getUserById(userId);
-            User user2 = getUserById(friendId);
-            user.getFriends().add(user2.getId());
-            user2.getFriends().add(user.getId());
+            User friend = getUserById(friendId);
+            user.getFriends().add(friend.getId());
+            friend.getFriends().add(user.getId());
             return getUserById(userId);
         } catch (RuntimeException e) {
             throw new NotFoundException(e.getMessage());
@@ -51,9 +51,9 @@ public class UserService {
 
     public User deleteFriend(int userId, int friendId) {
         User user = getUserById(userId);
-        User user2 = getUserById(friendId);
+        User friend = getUserById(friendId);
         user.getFriends().remove(friendId);
-        user2.getFriends().remove(userId);
+        friend.getFriends().remove(userId);
         return getUserById(userId);
     }
 

@@ -31,7 +31,7 @@ public class FilmService {
     }
 
     public Film getFilmById(int id) {
-        return storage.getFilms().get(id);
+        return storage.getFilmById(id);
     }
 
     public Film putLike(int filmId, int userId) {

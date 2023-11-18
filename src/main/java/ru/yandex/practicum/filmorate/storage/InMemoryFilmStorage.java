@@ -15,7 +15,7 @@ import java.util.Map;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private Map<Integer, Film> films = new HashMap<>();
-    private int id = 0;
+    private int id = 1;
 
 
     @Override
@@ -45,6 +45,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getFilms() {
         return List.copyOf(films.values());
+    }
+
+    @Override
+    public Film getFilmById(int id) {
+        return getFilms().get(id);
     }
 
     public boolean isValidFilm(Film film) {
