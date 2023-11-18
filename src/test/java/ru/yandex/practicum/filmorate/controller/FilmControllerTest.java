@@ -36,8 +36,8 @@ class FilmControllerTest {
 
     @Test
     void createFilm() {
-        Film film = Film.builder().name("asd").likes(new HashSet<>()).
-                duration(40).description("qwe").id(0).releaseDate(LocalDate.of(2022, 11, 10)).build();
+        Film film = Film.builder().name("asd").likes(new HashSet<>())
+                .duration(40).description("qwe").id(0).releaseDate(LocalDate.of(2022, 11, 10)).build();
         controller.createFilm(film);
         Assertions.assertEquals(film.hashCode(), controller.getFilms().get(0).hashCode());
     }
@@ -51,8 +51,8 @@ class FilmControllerTest {
 
     @Test
     void createFilmIfDescriptionOver200() {
-        Film film = Film.builder().name("asd").likes(new HashSet<>()).releaseDate(LocalDate.of(2022, 11, 10)).
-                duration(40).description(new String(new char[200]).replace("", " ")).id(0).build();
+        Film film = Film.builder().name("asd").likes(new HashSet<>()).releaseDate(LocalDate.of(2022, 11, 10))
+                .duration(40).description(new String(new char[200]).replace("", " ")).id(0).build();
         Assertions.assertThrows(ValidationException.class, () -> controller.createFilm(film));
     }
 
