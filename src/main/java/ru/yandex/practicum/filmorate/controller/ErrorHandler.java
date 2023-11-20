@@ -14,7 +14,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> notFoundHandle(final NotFoundException e) {
-        return Map.of("С таким индексом значение не найдено", e.getMessage());
+        return Map.of("Ошибка! С таким индексом значение не найдено", e.getMessage());
     }
 
 }

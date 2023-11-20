@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
@@ -9,8 +8,8 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-@Slf4j
 @Service
 public class UserService {
     private final UserStorage storage;
@@ -71,14 +70,16 @@ public class UserService {
     }
 
     public List<User> getMutualFriends(Integer userId, Integer friendId) {
+        Set<Integer> userFriendList = getUserById(userId).getFriends();
         List<User> mutualFriends = new ArrayList<>();
-        if (getUserById(userId).getFriends().isEmpty()) {
+
+        if (userFriendList.isEmpty()) {
             return mutualFriends;
-        } else {
-            for (Integer id : getUserById(userId).getFriends()) {
-                if (getUserById(friendId).getFriends().contains(id)) {
-                    mutualFriends.add(getUserById(id));
-                }
+        }
+
+        for (Integer id : userFriendList) {
+            if (getUserById(friendId).getFriends().contains(id)) {
+                mutualFriends.add(getUserById(id));
             }
         }
         return mutualFriends;

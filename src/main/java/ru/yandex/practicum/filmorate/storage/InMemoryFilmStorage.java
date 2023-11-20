@@ -16,6 +16,9 @@ import java.util.Map;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
+    private final LocalDate MAGIC_DATE = LocalDate.of(1895, 12, 28);
+    private final int MAX_CHAR = 200;
+
     private int id = 1;
 
 
@@ -60,13 +63,13 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
-    public boolean isValidFilm(Film film) {
+    private boolean isValidFilm(Film film) {
         film.setName(film.getName().trim());
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название не может быть пустым");
-        } else if (film.getDescription().length() > 200) {
-            throw new ValidationException("максимальная длина описания — 200 символов");
-        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        } else if (film.getDescription().length() > MAX_CHAR) {
+            throw new ValidationException("максимальная длина описания — " + MAX_CHAR + " символов");
+        } else if (film.getReleaseDate().isBefore(MAGIC_DATE)) {
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         } else if (film.getDuration() <= 0) {
             throw new ValidationException("продолжительность фильма должна быть положительной");

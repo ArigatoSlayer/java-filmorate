@@ -43,15 +43,15 @@ public class FilmService {
     public Film deleteLike(int filmId, int userId) {
         if (getFilms().contains(getFilmById(filmId)) && getFilmById(filmId).getLikes().contains(userId)) {
             getFilmById(filmId).getLikes().remove(userId);
-        } else {
-            throw new NotFoundException("Пользователь с id: " + userId + " или фильм с id: " + filmId + " ! Не найдено");
+            return getFilmById(filmId);
         }
-        return getFilmById(filmId);
+        throw new NotFoundException("Пользователь с id: " + userId + " или фильм с id: " + filmId + " ! Не найдено");
     }
 
     public List<Film> topFilms(int count) {
         return storage.getFilms().stream().sorted((film1, film2) ->
                         film2.getLikes().size() - film1.getLikes().size())
-                .limit(count).collect(Collectors.toList());
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }
