@@ -5,22 +5,33 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 class UserControllerTest {
     private UserController controller;
+    private UserStorage storage;
+    private UserService service;
 
     @BeforeEach
     void setController() {
-        controller = new UserController();
+        storage = new InMemoryUserStorage();
+        service = new UserService(storage);
+        controller = new UserController(service);
     }
 
     @Test
     void getAllUsers() {
-        User user = new User(0, "email@mail.ru", "lol", "qwe", LocalDate.of(2022, 12, 3));
-        User user1 = new User(0, "email@mail.ru", "lol", "qwe", LocalDate.of(2022, 12, 3));
-        User user2 = new User(0, "email@mail.ru", "lol", "qwe", LocalDate.of(2022, 12, 3));
+        User user = User.builder().id(0).birthday(LocalDate.of(2000, 11, 10)).email("email@mail.ru")
+                .friends(new HashSet<>()).login("lol").name("qwe").build();
+        User user1 = User.builder().id(0).birthday(LocalDate.of(2000, 11, 10)).email("email@mail.ru")
+                .friends(new HashSet<>()).login("lol").name("qwe").build();
+        User user2 = User.builder().id(0).birthday(LocalDate.of(2000, 11, 10)).email("email@mail.ru")
+                .friends(new HashSet<>()).login("lol").name("qwe").build();
         controller.createUser(user);
         controller.createUser(user1);
         controller.createUser(user2);
@@ -29,9 +40,12 @@ class UserControllerTest {
 
     @Test
     void createUser() {
-        User user = new User(0, "mail.ru", "lol", "qwe", LocalDate.of(2022, 12, 3));
-        User user1 = new User(0, "mail.ru", "lol", "qwe", LocalDate.of(2030, 12, 3));
-        User user2 = new User(0, "mail.ru", "  ", "qwe", LocalDate.of(2022, 12, 3));
+        User user = User.builder().id(0).birthday(LocalDate.of(2000, 11, 10)).email("mail.ru")
+                .friends(new HashSet<>()).login("lol").name("qwe").build();
+        User user1 = User.builder().id(0).birthday(LocalDate.of(2030, 11, 10)).email("email@mail.ru")
+                .friends(new HashSet<>()).login("lol").name("qwe").build();
+        User user2 = User.builder().id(0).birthday(LocalDate.of(2000, 11, 10)).email("email@mail.ru")
+                .friends(new HashSet<>()).login("").name("qwe").build();
         Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
         Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user1));
         Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user2));
@@ -39,7 +53,8 @@ class UserControllerTest {
 
     @Test
     void updateUser() {
-        User user = new User(0, "mail@mail.ru", "lol", "qwe", LocalDate.of(2022, 12, 3));
+        User user = User.builder().id(0).birthday(LocalDate.of(2000, 11, 10)).email("email@mail.ru")
+                .friends(new HashSet<>()).login("lol").name("qwe").build();
         controller.createUser(user);
         controller.updateUser(user);
         Assertions.assertEquals(user.hashCode(), controller.getAllUsers().get(0).hashCode());
