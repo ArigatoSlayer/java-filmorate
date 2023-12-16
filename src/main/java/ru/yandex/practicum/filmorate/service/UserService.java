@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -21,11 +23,19 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        return storage.createUser(user);
+        if (isValidUser(user)) {
+            return storage.createUser(user);
+        } else {
+            throw new RuntimeException("Введены неверные параметры");
+        }
     }
 
     public User updateUser(User user) {
-        return storage.updateUser(user);
+        if (isValidUser(user)) {
+            return storage.updateUser(user);
+        } else {
+            throw new RuntimeException("Введены неверные параметры");
+        }
     }
 
 
@@ -47,5 +57,16 @@ public class UserService {
 
     public List<User> getMutualFriends(Integer userId, Integer friendId) {
         return storage.getMutualFriends(userId, friendId);
+    }
+
+    private boolean isValidUser(User user) {
+        if (user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
+            throw new ValidationException("Email пустой или не содержит: @");
+        } else if (user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
+            throw new ValidationException("Логин пустой или содержит пробел");
+        } else if (user.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Дата рождения установлена в будущем");
+        }
+        return true;
     }
 }

@@ -55,5 +55,4 @@ public class UserController {
     public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
         service.deleteFriend(id, friendId);
     }
-
 }

@@ -2,23 +2,37 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class FilmService {
 
+    private final LocalDate dateStart = LocalDate.of(1895, 12, 28);
+    private final int maxChar = 200;
+
     private final FilmStorage storage;
 
     public Film updateFilm(Film film) {
-        return storage.updateFilm(film);
+        if (isValidFilm(film)) {
+            return storage.updateFilm(film);
+        } else {
+            throw new RuntimeException("Введены неверные данные");
+        }
+
     }
 
     public Film createFilm(Film film) {
-        return storage.createFilm(film);
+        if (isValidFilm(film)) {
+            return storage.createFilm(film);
+        } else {
+            throw new RuntimeException("Введены неверные данные");
+        }
     }
 
     public List<Film> getFilms() {
@@ -39,5 +53,19 @@ public class FilmService {
 
     public List<Film> topFilms(int count) {
         return storage.getListOfTopFilms(count);
+    }
+
+    private boolean isValidFilm(Film film) {
+        film.setName(film.getName().trim());
+        if (film.getName().isEmpty()) {
+            throw new ValidationException("Название не может быть пустым");
+        } else if (film.getDescription().length() > maxChar) {
+            throw new ValidationException("максимальная длина описания — " + maxChar + " символов");
+        } else if (film.getReleaseDate().isBefore(dateStart)) {
+            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
+        } else if (film.getDuration() <= 0) {
+            throw new ValidationException("продолжительность фильма должна быть положительной");
+        }
+        return true;
     }
 }
