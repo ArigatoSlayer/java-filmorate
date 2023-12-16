@@ -14,9 +14,10 @@ import java.util.List;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class MpaDbStorage implements MpaStorage{
+public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaMapper mapper;
+
     @Override
     public List<Mpa> findAll() {
         String sqlQuery = "SELECT * FROM rating_mpa";
