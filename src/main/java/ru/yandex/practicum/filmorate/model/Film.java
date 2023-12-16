@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -25,6 +26,8 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
+    Mpa mpa;
+    List<Genre> genres;
     private Set<Integer> likes = new HashSet<>();
 
 }

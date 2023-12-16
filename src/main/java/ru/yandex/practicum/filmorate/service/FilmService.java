@@ -1,23 +1,17 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
     private final FilmStorage storage;
-
-    @Autowired
-    public FilmService(FilmStorage storage) {
-        this.storage = storage;
-    }
 
     public Film updateFilm(Film film) {
         return storage.updateFilm(film);
@@ -36,22 +30,14 @@ public class FilmService {
     }
 
     public Film putLike(int filmId, int userId) {
-        getFilmById(filmId).getLikes().add(userId);
-        return getFilmById(filmId);
+        return storage.addLike(filmId, userId);
     }
 
     public Film deleteLike(int filmId, int userId) {
-        if (getFilms().contains(getFilmById(filmId)) && getFilmById(filmId).getLikes().contains(userId)) {
-            getFilmById(filmId).getLikes().remove(userId);
-            return getFilmById(filmId);
-        }
-        throw new NotFoundException("Пользователь с id: " + userId + " или фильм с id: " + filmId + " ! Не найдено");
+        return storage.deleteLike(filmId, userId);
     }
 
     public List<Film> topFilms(int count) {
-        return storage.getFilms().stream().sorted((film1, film2) ->
-                        film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+        return storage.getListOfTopFilms(count);
     }
 }
