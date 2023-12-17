@@ -21,8 +21,8 @@ public class GenreController {
         return service.findAll();
     }
 
-    @GetMapping("/id")
+    @GetMapping("/{id}")
     public Genre findById(@PathVariable int id) {
-        return service.findById(id);
+        return service.getById(id);
     }
 }
