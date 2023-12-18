@@ -22,7 +22,7 @@ public class FilmService {
         if (!isValidFilm(film)) {
             throw new RuntimeException("Введены неверные данные");
         }
-        return storage.createFilm(film);
+        return storage.updateFilm(film);
     }
 
     public Film createFilm(Film film) {
