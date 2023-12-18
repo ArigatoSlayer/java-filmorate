@@ -19,20 +19,17 @@ public class FilmService {
     private final FilmStorage storage;
 
     public Film updateFilm(Film film) {
-        if (isValidFilm(film)) {
-            return storage.updateFilm(film);
-        } else {
+        if (!isValidFilm(film)) {
             throw new RuntimeException("Введены неверные данные");
         }
-
+        return storage.createFilm(film);
     }
 
     public Film createFilm(Film film) {
-        if (isValidFilm(film)) {
-            return storage.createFilm(film);
-        } else {
+        if (!isValidFilm(film)) {
             throw new RuntimeException("Введены неверные данные");
         }
+        return storage.createFilm(film);
     }
 
     public List<Film> getFilms() {

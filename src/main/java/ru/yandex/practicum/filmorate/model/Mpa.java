@@ -12,8 +12,8 @@ import lombok.Data;
 @Data
 public class Mpa {
     @PositiveOrZero
-    int id;
+    private int id;
     @NotNull
     @Size(max = 3, message = "Слишком длинное имя. Максимальное количество символов - 10")
-    String name;
+    private String name;
 }

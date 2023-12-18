@@ -28,7 +28,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getTopList(@RequestParam(defaultValue = "10", required = false) Integer count) {
+    public List<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
         return service.topFilms(count);
     }
 

@@ -12,8 +12,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class Genre {
     @PositiveOrZero
-    int id;
+    private int id;
     @NotNull
     @Size(max = 100, message = "Слишком длинное название жанра. Максимальное количество символов - 100")
-    String name;
+    private String name;
 }

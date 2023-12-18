@@ -23,19 +23,17 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        if (isValidUser(user)) {
-            return storage.createUser(user);
-        } else {
+        if (!isValidUser(user)) {
             throw new RuntimeException("Введены неверные параметры");
         }
+        return storage.createUser(user);
     }
 
     public User updateUser(User user) {
-        if (isValidUser(user)) {
-            return storage.updateUser(user);
-        } else {
+        if (!isValidUser(user)) {
             throw new RuntimeException("Введены неверные параметры");
         }
+        return storage.updateUser(user);
     }
 
 
