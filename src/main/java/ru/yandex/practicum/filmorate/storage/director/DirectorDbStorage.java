@@ -28,6 +28,6 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void deleteDirectorById(int directorId) {
-
     }
+
 }
