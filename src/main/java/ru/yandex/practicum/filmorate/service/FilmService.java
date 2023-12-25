@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -38,6 +40,16 @@ public class FilmService {
 
     public Film getFilmById(int id) {
         return storage.getFilmById(id);
+    }
+
+    public List<Film> getAllDirectirsFilms(int directorId, String sortBy) {
+        if ("likes".equals(sortBy)) {
+            return storage.getAllDirectorsFilmsOrderByLikes(directorId);
+        }
+        if ("year".equals(sortBy)) {
+            return storage.getAllDirectorsFilmsOrderByYear(directorId);
+        }
+        throw new RuntimeException("Введены неверные данные");
     }
 
     public Film putLike(int filmId, int userId) {

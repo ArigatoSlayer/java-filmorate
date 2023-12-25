@@ -10,6 +10,7 @@ import lombok.Data;
 public class Director {
 
     private int id;
+
     @NotNull
     @NotBlank
     private String name;

@@ -142,6 +142,16 @@ public class FilmDbStorage implements FilmStorage {
 
     }
 
+    @Override
+    public List<Film> getAllDirectorsFilmsOrderByLikes(int directorId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> getAllDirectorsFilmsOrderByYear(int directorId) {
+        return null;
+    }
+
     public Set<Integer> getLikesForCurrentFilm(int filmId) {
         final String sqlQuery = "SELECT user_id FROM likes WHERE film_id = ?";
         SqlRowSet likesRows = jdbcTemplate.queryForRowSet(sqlQuery, filmId);

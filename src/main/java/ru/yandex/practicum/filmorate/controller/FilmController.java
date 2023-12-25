@@ -32,6 +32,11 @@ public class FilmController {
         return service.topFilms(count);
     }
 
+    @GetMapping("/directors/{id}/")
+    public List<Film> getAllDirectirsFilms(@PathVariable int directorId, @RequestParam String sortBy) {
+        return service.getAllDirectirsFilms(directorId, sortBy);
+    }
+
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         return service.updateFilm(film);
