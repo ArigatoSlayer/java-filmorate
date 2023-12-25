@@ -2,13 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class UserService {
@@ -24,10 +23,16 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        if (!isValidUser(user)) {
+            throw new RuntimeException("Введены неверные параметры");
+        }
         return storage.createUser(user);
     }
 
     public User updateUser(User user) {
+        if (!isValidUser(user)) {
+            throw new RuntimeException("Введены неверные параметры");
+        }
         return storage.updateUser(user);
     }
 
@@ -36,52 +41,30 @@ public class UserService {
         return storage.getUserById(id);
     }
 
-    public User addToFriend(int userId, int friendId) {
-        try {
-            User user = getUserById(userId);
-            User friend = getUserById(friendId);
-            user.getFriends().add(friend.getId());
-            friend.getFriends().add(user.getId());
-            return getUserById(userId);
-        } catch (RuntimeException e) {
-            throw new NotFoundException(e.getMessage());
-        }
+    public void addToFriend(int userId, int friendId) {
+        storage.addFriend(userId, friendId);
     }
 
-    public User deleteFriend(int userId, int friendId) {
-        if (getUserById(userId).getFriends().contains(friendId)) {
-            User user = getUserById(userId);
-            User friend = getUserById(friendId);
-            user.getFriends().remove(friendId);
-            friend.getFriends().remove(userId);
-            return getUserById(userId);
-        } else {
-            throw new NotFoundException(
-                    "Пользователь с id: " + userId + "не найден или не имеет в друзьях друга с id: " + friendId);
-        }
+    public void deleteFriend(int userId, int friendId) {
+        storage.deleteFriend(userId, friendId);
     }
 
     public List<User> getAllFriends(int userId) {
-        List<User> userList = new ArrayList<>();
-        for (Integer friend : getUserById(userId).getFriends()) {
-            userList.add(getUserById(friend));
-        }
-        return userList;
+        return storage.getFriends(userId);
     }
 
     public List<User> getMutualFriends(Integer userId, Integer friendId) {
-        Set<Integer> userFriendList = getUserById(userId).getFriends();
-        List<User> mutualFriends = new ArrayList<>();
+        return storage.getMutualFriends(userId, friendId);
+    }
 
-        if (userFriendList.isEmpty()) {
-            return mutualFriends;
+    private boolean isValidUser(User user) {
+        if (user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
+            throw new ValidationException("Email пустой или не содержит: @");
+        } else if (user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
+            throw new ValidationException("Логин пустой или содержит пробел");
+        } else if (user.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Дата рождения установлена в будущем");
         }
-
-        for (Integer id : userFriendList) {
-            if (getUserById(friendId).getFriends().contains(id)) {
-                mutualFriends.add(getUserById(id));
-            }
-        }
-        return mutualFriends;
+        return true;
     }
 }

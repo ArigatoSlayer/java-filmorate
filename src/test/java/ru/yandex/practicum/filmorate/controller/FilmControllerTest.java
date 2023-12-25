@@ -1,84 +1,63 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exeptions.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@SpringBootTest
 class FilmControllerTest {
-    private FilmController controller;
-    private FilmService service;
-    private FilmStorage storage;
+    private FilmStorage filmStorage;
+    private FilmService filmService;
+    private Film film1, film2, film3, film4, film5, film1Updated;
 
-    @BeforeEach
-    void setController() {
-        storage = new InMemoryFilmStorage();
-        service = new FilmService(storage);
-        controller = new FilmController(service);
+    @Autowired
+    public FilmControllerTest(FilmStorage filmStorage, FilmService filmService) {
+        this.filmStorage = filmStorage;
+        this.filmService = filmService;
+        film1 = createFilm(0, "name1", "description1", LocalDate.of(2001, 6, 17), 91);
+        film2 = createFilm(0, "name2", "description2", LocalDate.of(2002, 6, 17), 92);
+        film3 = createFilm(0, "name3", "description3", LocalDate.of(2003, 6, 17), 93);
+        film4 = createFilm(0, "name4", "description4", LocalDate.of(2004, 6, 17), 94);
+        film5 = createFilm(0, "name5", "description5", LocalDate.of(2005, 6, 17), 95);
+        film1Updated = createFilm(1, "name1 updated", "description1 updated", LocalDate.of(2001, 6, 17), 99);
+    }
+
+
+    private Film createFilm(int id, String name, String description, LocalDate releaseDate, int duration) {
+        return Film.builder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .releaseDate(releaseDate)
+                .duration(duration)
+                .mpa(Mpa.builder().id(1).name("G").build())
+                .genres(new ArrayList<>())
+                .likes(new LinkedHashSet<>())
+                .build();
     }
 
     @Test
-    void getFilmsTest() {
-        Film film = Film.builder().name("asd").releaseDate(LocalDate.of(2022, 11, 10))
-                .likes(new HashSet<>()).duration(40).description("qwe").id(0).build();
-        controller.createFilm(film);
-        controller.createFilm(film);
-        controller.createFilm(film);
-        Assertions.assertEquals(3, controller.getFilms().size());
+    public void getAllFilms() {
+        film1.setId(1);
+        film2.setId(2);
+        film3.setId(3);
+        film4.setId(4);
+        film5.setId(5);
+        filmService.createFilm(film1);
+        filmService.createFilm(film2);
+        filmService.createFilm(film3);
+        filmService.createFilm(film4);
+        filmService.createFilm(film5);
+        assertEquals(5, filmService.getFilms().size());
     }
-
-    @Test
-    void createFilm() {
-        Film film = Film.builder().name("asd").likes(new HashSet<>())
-                .duration(40).description("qwe").id(0).releaseDate(LocalDate.of(2022, 11, 10)).build();
-        controller.createFilm(film);
-        Assertions.assertEquals(film.hashCode(), controller.getFilms().get(0).hashCode());
-    }
-
-    @Test
-    void createFilmIfNameEmpty() {
-        Film film = Film.builder().name(" ").likes(new HashSet<>())
-                .releaseDate(LocalDate.of(2022, 11, 10)).duration(40).description("qwe").id(0).build();
-        Assertions.assertThrows(ValidationException.class, () -> controller.createFilm(film));
-    }
-
-    @Test
-    void createFilmIfDescriptionOver200() {
-        Film film = Film.builder().name("asd").likes(new HashSet<>()).releaseDate(LocalDate.of(2022, 11, 10))
-                .duration(40).description(new String(new char[200]).replace("", " ")).id(0).build();
-        Assertions.assertThrows(ValidationException.class, () -> controller.createFilm(film));
-    }
-
-    @Test
-    void createFilmIfBefore1875() {
-        Film film = Film.builder().name(" ").likes(new HashSet<>())
-                .releaseDate(LocalDate.of(1070, 11, 10)).duration(40).description("qwe").id(0).build();
-        Assertions.assertThrows(ValidationException.class, () -> controller.createFilm(film));
-    }
-
-    @Test
-    void createFilmIfDurationUp0() {
-        Film film = Film.builder().name(" ").likes(new HashSet<>())
-                .releaseDate(LocalDate.of(2022, 11, 10)).duration(0).description("qwe").id(0).build();
-        Assertions.assertThrows(ValidationException.class, () -> controller.createFilm(film));
-    }
-
-    @Test
-    void updateFilmTest() {
-        Film film = Film.builder().name("q").likes(new HashSet<>())
-                .releaseDate(LocalDate.of(2022, 11, 10)).duration(40).description("qwe").id(0).build();
-        controller.createFilm(film);
-        Film filmId1 = Film.builder().name("q").likes(new HashSet<>())
-                .releaseDate(LocalDate.of(2022, 11, 10)).duration(40).description("qwe").id(1).build();
-        controller.updateFilm(filmId1);
-        Assertions.assertEquals(filmId1.hashCode(), controller.getFilms().get(0).hashCode());
-    }
-
 }
