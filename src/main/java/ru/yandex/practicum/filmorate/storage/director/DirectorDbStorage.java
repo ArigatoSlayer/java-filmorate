@@ -28,7 +28,7 @@ public class DirectorDbStorage implements DirectorStorage {
     public List<Director> getAllDirectors() {
         final String sqlQuery = "SELECT * FROM directors;";
         log.info("Отправлены все режиссеры.");
-        return new LinkedList<>(jdbcTemplate.query(sqlQuery, directorMapper));
+        return jdbcTemplate.query(sqlQuery, directorMapper);
     }
 
     @Override
