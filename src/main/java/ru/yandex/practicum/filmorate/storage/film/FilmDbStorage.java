@@ -184,7 +184,7 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY film.film_id " +
                 "ORDER BY COUNT(likes.film_id) DESC;";
 
-        log.info("Отправлен список общих фильмов");
+        log.info("Отправлен список общих фильмов.");
 
         return jdbcTemplate.query(sqlQuery, filmMapper, userId, friendId);
     }
