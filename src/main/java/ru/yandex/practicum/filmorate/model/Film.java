@@ -30,4 +30,8 @@ public class Film {
     private List<Genre> genres;
     private Set<Integer> likes = new HashSet<>();
     private Set<Director> directors;
+
+    public void addDirectorToDirectorsSet(Director director) {
+        this.directors.add(director);
+    }
 }

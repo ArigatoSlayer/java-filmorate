@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
@@ -16,50 +17,64 @@ public class FilmService {
     private final LocalDate dateStart = LocalDate.of(1895, 12, 28);
     private final int maxChar = 200;
 
-    private final FilmStorage storage;
+    private final FilmStorage filmStorage;
+    private final DirectorStorage directorStorage;
 
     public Film updateFilm(Film film) {
         if (!isValidFilm(film)) {
             throw new RuntimeException("Введены неверные данные");
         }
-        return storage.updateFilm(film);
+        directorStorage.setFilmDirectorsToDb(film.getId(), film.getDirectors());
+        Film resultFilm = filmStorage.updateFilm(film);
+        resultFilm.setDirectors(directorStorage.getFilmDirectorsFromDb(film.getId()));
+        return resultFilm;
     }
 
     public Film createFilm(Film film) {
         if (!isValidFilm(film)) {
             throw new RuntimeException("Введены неверные данные");
         }
-        return storage.createFilm(film);
+        Film resultFilm = filmStorage.createFilm(film);
+        directorStorage.setFilmDirectorsToDb(resultFilm.getId(), film.getDirectors());
+        resultFilm.setDirectors(directorStorage.getFilmDirectorsFromDb(film.getId()));
+        return resultFilm;
     }
 
     public List<Film> getFilms() {
-        return storage.getFilms();
+        return directorStorage.setDirectorsToFilmList(filmStorage.getFilms());
     }
 
-    public Film getFilmById(int id) {
-        return storage.getFilmById(id);
+    public Film getFilmById(int filmId) {
+        Film film = filmStorage.getFilmById(filmId);
+        film.setDirectors(directorStorage.getFilmDirectorsFromDb(filmId));
+        return film;
     }
 
-    public List<Film> getAllDirectirsFilms(int directorId, String sortBy) {
+    public List<Film> getAllDirectorFilms(int directorId, String sortBy) {
+        directorStorage.getDirectorById(directorId);
         if ("likes".equals(sortBy)) {
-            return storage.getAllDirectorsFilmsOrderByLikes(directorId);
+            return directorStorage.setDirectorsToFilmList(filmStorage.getAllDirectorFilmsOrderByLikes(directorId));
         }
         if ("year".equals(sortBy)) {
-            return storage.getAllDirectorsFilmsOrderByYear(directorId);
+            return directorStorage.setDirectorsToFilmList(filmStorage.getAllDirectorFilmsOrderByYear(directorId));
         }
         throw new RuntimeException("Введены неверные данные");
     }
 
     public Film putLike(int filmId, int userId) {
-        return storage.addLike(filmId, userId);
+        Film film = filmStorage.addLike(filmId, userId);
+        film.setDirectors(directorStorage.getFilmDirectorsFromDb(filmId));
+        return film;
     }
 
     public Film deleteLike(int filmId, int userId) {
-        return storage.deleteLike(filmId, userId);
+        Film film = filmStorage.deleteLike(filmId, userId);
+        film.setDirectors(directorStorage.getFilmDirectorsFromDb(filmId));
+        return film;
     }
 
     public List<Film> topFilms(int count) {
-        return storage.getListOfTopFilms(count);
+        return directorStorage.setDirectorsToFilmList(filmStorage.getListOfTopFilms(count));
     }
 
     private boolean isValidFilm(Film film) {

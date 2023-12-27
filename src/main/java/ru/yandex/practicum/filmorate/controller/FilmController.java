@@ -2,14 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
@@ -32,9 +30,9 @@ public class FilmController {
         return service.topFilms(count);
     }
 
-    @GetMapping("/directors/{id}/")
-    public List<Film> getAllDirectirsFilms(@PathVariable int directorId, @RequestParam String sortBy) {
-        return service.getAllDirectirsFilms(directorId, sortBy);
+    @GetMapping("/director/{directorId}")
+    public List<Film> getAllDirectorFilms(@PathVariable int directorId, @RequestParam String sortBy) {
+        return service.getAllDirectorFilms(directorId, sortBy);
     }
 
     @PutMapping
