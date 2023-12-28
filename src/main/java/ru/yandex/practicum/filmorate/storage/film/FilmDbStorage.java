@@ -220,9 +220,6 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-
-
-
     private Map<String, Object> getFilmFields(Film film) {
         Map<String, Object> fields = new HashMap<>();
         fields.put("NAME", film.getName());
