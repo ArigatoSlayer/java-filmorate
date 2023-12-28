@@ -93,14 +93,6 @@ CREATE TABLE IF NOT EXISTS reviews
     useful          integer DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS film_reviews
-(
-    review_id       integer REFERENCES reviews (review_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    film_id         integer REFERENCES film (film_id) ON DELETE CASCADE ON UPDATE CASCADE,
-
-    PRIMARY KEY (film_id, review_id)
-);
-
 ALTER TABLE film
     ADD FOREIGN KEY (rating_id) REFERENCES rating_mpa (id);
 ALTER TABLE film_genre
