@@ -152,7 +152,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE film_directors.director_id = ? " +
                 "GROUP BY film.film_id " +
                 "ORDER BY COUNT(likes.film_id) DESC;";
-        return new LinkedList<>(jdbcTemplate.query(sqlQuery, filmMapper, directorId));
+        return jdbcTemplate.query(sqlQuery, filmMapper, directorId);
     }
 
     @Override
@@ -162,7 +162,7 @@ public class FilmDbStorage implements FilmStorage {
                 "INNER JOIN film_directors USING (film_id) " +
                 "WHERE director_id = ? " +
                 "ORDER BY release_date;";
-        return new LinkedList<>(jdbcTemplate.query(sqlQuery, filmMapper, directorId));
+        return jdbcTemplate.query(sqlQuery, filmMapper, directorId);
     }
 
     @Override

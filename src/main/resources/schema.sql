@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS reviews
     is_positive     boolean NOT NULL,
     user_id         integer REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
     film_id         integer REFERENCES film (film_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    useful          integer NOT NULL DEFAULT 0
+    useful          integer DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS film_reviews

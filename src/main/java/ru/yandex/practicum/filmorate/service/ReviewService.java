@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
@@ -31,6 +32,9 @@ public class ReviewService {
     }
 
     public Review postReview(Review review) {
+        validateReview(review);
+        filmStorage.getFilmById(review.getFilmId());
+        userStorage.getUserById(review.getUserId());
         return reviewStorage.postReview(review);
     }
 
@@ -38,28 +42,33 @@ public class ReviewService {
         return reviewStorage.putReview(review);
     }
 
-    public Review putLikeToReview(Integer reviewId, Integer userId) {
+    public void incrementLikeToReview(Integer reviewId, Integer userId) {
         userStorage.getUserById(userId);
-        return reviewStorage.putLikeToReview(reviewId, userId);
+        reviewStorage.incrementLikeToReview(reviewId, userId);
     }
 
-    public Review putDislikeToReview(Integer reviewId, Integer userId) {
+    public void decrementLikeToReview(Integer reviewId, Integer userId) {
         userStorage.getUserById(userId);
-        return reviewStorage.putDislikeToReview(reviewId, userId);
-    }
-
-    public Review deleteLikeFromReview(Integer reviewId, Integer userId) {
-        userStorage.getUserById(userId);
-        return reviewStorage.deleteLikeFromReview(reviewId, userId);
-    }
-
-    public Review deleteDislikeFromReview(Integer reviewId, Integer userId) {
-        userStorage.getUserById(userId);
-        return reviewStorage.deleteDislikeFromReview(reviewId, userId);
+        reviewStorage.decrementLikeToReview(reviewId, userId);
     }
 
     public void deleteReviewById(Integer reviewId) {
         reviewStorage.deleteReviewById(reviewId);
+    }
+
+    private void validateReview(Review review) {
+        if (review.getContent() == null || review.getContent().isBlank()) {
+            throw new ValidationException("Отзыв должен содержать контент.");
+        }
+        if (review.getIsPositive() == null) {
+            throw new ValidationException("Отзыв должен содержать тип.");
+        }
+        if (review.getUserId() == null) {
+            throw new ValidationException("Отзыв должен содержать идентификатор пользователя.");
+        }
+        if (review.getFilmId() == null) {
+            throw new ValidationException("Отзыв должен содержать идентификатор фильма.");
+        }
     }
 
 }

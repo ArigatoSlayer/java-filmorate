@@ -37,23 +37,23 @@ public class ReviewController {
     }
 
     @PutMapping("/reviews/{id}/like/{userId}")
-    public Review putLikeToReview(@PathVariable Integer id, @PathVariable Integer userId) {
-        return reviewService.putLikeToReview(id, userId);
+    public void putLikeToReview(@PathVariable Integer id, @PathVariable Integer userId) {
+        reviewService.incrementLikeToReview(id, userId);
     }
 
     @PutMapping("/reviews/{id}/dislike/{userId}")
-    public Review putDislikeToReview(@PathVariable Integer id, @PathVariable Integer userId) {
-        return reviewService.putDislikeToReview(id, userId);
+    public void putDislikeToReview(@PathVariable Integer id, @PathVariable Integer userId) {
+        reviewService.decrementLikeToReview(id, userId);
     }
 
     @DeleteMapping("/reviews/{id}/like/{userId}")
-    public Review deleteLikeFromReview(@PathVariable Integer id, @PathVariable Integer userId) {
-        return reviewService.deleteLikeFromReview(id, userId);
+    public void deleteLikeFromReview(@PathVariable Integer id, @PathVariable Integer userId) {
+        reviewService.decrementLikeToReview(id, userId);
     }
 
     @DeleteMapping("/reviews/{id}/dislike/{userId}")
-    public Review deleteDislikeFromReview(@PathVariable Integer id, @PathVariable Integer userId) {
-        return reviewService.deleteDislikeFromReview(id, userId);
+    public void deleteDislikeFromReview(@PathVariable Integer id, @PathVariable Integer userId) {
+        reviewService.incrementLikeToReview(id, userId);
     }
 
     @DeleteMapping("/reviews/{id}")
