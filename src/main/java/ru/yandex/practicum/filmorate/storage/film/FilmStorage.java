@@ -26,5 +26,6 @@ public interface FilmStorage {
     List<Film> searchBySubstring(String str);
 
     List<Film> searchBySubstringByFilms(String str);
+
     List<Film> searchBySubstringByDirectors(String str);
 }
