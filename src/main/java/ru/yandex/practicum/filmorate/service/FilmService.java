@@ -2,12 +2,14 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -75,6 +77,20 @@ public class FilmService {
 
     public List<Film> topFilms(int count) {
         return directorStorage.setDirectorsToFilmList(filmStorage.getListOfTopFilms(count));
+    }
+
+    public List<Film> searchBySubstring(String str, List<String> by) {
+        List<Film> films;
+        if (by.size() == 2) {
+            films = filmStorage.searchBySubstring(str);
+        } else if (by.size() == 1 && by.contains("title")) {
+            films = filmStorage.searchBySubstringByFilms(str);
+        } else if (by.size() == 1 && by.contains("director")) {
+            films = filmStorage.searchBySubstringByDirectors(str);
+        } else {
+            throw new NotFoundException("Фильмы с подстрокой " + str + " не найдены");
+        }
+        return directorStorage.setDirectorsToFilmList(films);
     }
 
     private boolean isValidFilm(Film film) {

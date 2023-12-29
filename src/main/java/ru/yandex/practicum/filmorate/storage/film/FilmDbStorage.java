@@ -58,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
 
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getId());
-        log.info("Обновлен фильм с индентификатором {} ", film.getId());
+        log.info("Обновлен фильм с идентификатором {} ", film.getId());
         return getFilmById(film.getId());
     }
 
@@ -80,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
                 }
             }
         }
-        log.info("Создан фильм с индентификатором {} ", film.getId());
+        log.info("Создан фильм с идентификатором {} ", film.getId());
         return getFilmById(film.getId());
     }
 
@@ -101,7 +101,7 @@ public class FilmDbStorage implements FilmStorage {
             log.warn("Фильм с идентификатором {} не найден.", filmId);
             throw new NotFoundException("Фильм с идентификатором " + filmId + " не найден.");
         } else {
-            log.info("Отправлен фильм с индентификатором {} ", filmId);
+            log.info("Отправлен фильм с идентификатором {} ", filmId);
             return jdbcTemplate.queryForObject(sql, filmMapper, filmId);
         }
     }
@@ -162,6 +162,50 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE director_id = ? " +
                 "ORDER BY release_date;";
         return jdbcTemplate.query(sqlQuery, filmMapper, directorId);
+    }
+
+    @Override
+    public List<Film> searchBySubstring(String str) {
+        String sql = "SELECT film.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE film.film_id = l.film_id) as count " +
+                "FROM film " +
+                "LEFT JOIN film_directors AS fd ON fd.film_id = film.film_id " +
+                "LEFT JOIN directors AS d ON d.director_id = fd.director_id " +
+                "WHERE LOWER(film.name) LIKE (?) OR LOWER(d.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        return jdbcTemplate.query(sql, filmMapper, searchStr, searchStr);
+    }
+
+
+    @Override
+    public List<Film> searchBySubstringByDirectors(String str) {
+        String sql = "SELECT film.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE film.film_id = l.film_id) as count " +
+                "FROM film " +
+                "JOIN film_directors AS fd ON fd.film_id = film.film_id " +
+                "JOIN directors AS d ON d.director_id = fd.director_id " +
+                "WHERE LOWER(d.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        return jdbcTemplate.query(sql, filmMapper, searchStr);
+    }
+
+    @Override
+    public List<Film> searchBySubstringByFilms(String str) {
+        String sql = "SELECT f.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE f.film_id = l.film_id) as count " +
+                "FROM film as f " +
+                "WHERE LOWER(f.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        return jdbcTemplate.query(sql, filmMapper, searchStr);
     }
 
     public Set<Integer> getLikesForCurrentFilm(int filmId) {

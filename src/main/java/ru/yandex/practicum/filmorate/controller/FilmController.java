@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -53,6 +54,12 @@ public class FilmController {
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         return service.createFilm(film);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchBySubstring(@RequestParam String query,
+                                        @RequestParam List<String> by) {
+        return service.searchBySubstring(query, by);
     }
 
 }
