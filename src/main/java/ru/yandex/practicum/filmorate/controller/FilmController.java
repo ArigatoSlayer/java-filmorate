@@ -55,4 +55,10 @@ public class FilmController {
         return service.createFilm(film);
     }
 
+    @GetMapping("/search")
+    public List<Film> searchBySubstring(@RequestParam String query,
+                                        @RequestParam List<String> by) {
+        return service.searchBySubstring(query, by);
+    }
+
 }
