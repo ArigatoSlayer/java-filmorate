@@ -52,6 +52,10 @@ public class FilmService {
         return storage.getListOfTopFilms(count);
     }
 
+    public void deleteFilm(int id) {
+        storage.deleteFilm(id);
+    }
+
     private boolean isValidFilm(Film film) {
         film.setName(film.getName().trim());
         if (film.getName().isEmpty()) {

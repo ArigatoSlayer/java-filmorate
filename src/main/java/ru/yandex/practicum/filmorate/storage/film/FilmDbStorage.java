@@ -131,6 +131,21 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void deleteFilm(int id) {
+        final String sql = "DELETE FROM film WHERE film_id = ?";
+
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, id);
+
+        if (!filmRows.next()) {
+            log.warn("Фильм с идентификатором {} не найден.", id);
+            throw new NotFoundException("Фильм с идентификатором " + id + " не найден.");
+        } else {
+            log.info("Удален фильм с индентификатором {} ", id);
+            jdbcTemplate.update(sql, id);
+        }
+    }
+
+    @Override
     public List<Film> getListOfTopFilms(int count) {
         String sqlQuery = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
                 "LEFT JOIN likes AS l ON film.film_id=l.film_id " +
