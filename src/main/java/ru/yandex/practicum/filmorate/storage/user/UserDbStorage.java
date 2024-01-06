@@ -143,7 +143,7 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    public void deleteUser(int id){
+    public void deleteUser(int id) {
         final String query = "DELETE FROM users WHERE user_id = ?";
         isExist(id);
         jdbcTemplate.update(query, id);
