@@ -87,27 +87,57 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void incrementLikeToReview(Integer reviewId, Integer userId) {
-        final String sqlQuery = "UPDATE reviews SET " +
-                "useful = useful + 1 " +
-                "WHERE review_id = ?;";
-        int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId);
+    public void putLikeToReview(Integer reviewId, Integer userId) {
+        final String sqlQuery = "INSERT INTO review_rates (review_id, user_id, is_like) " +
+                "VALUES " +
+                "(?, ?, true);";
+        int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId, userId);
         if (updatedRowCount == 0) {
-            throw new NotFoundException("Введены неверные данные при обновлении отзыва.");
+            throw new NotFoundException("Введены неверные данные при добавлении лайка к отзыву.");
         }
-        log.info("Пользователь {} поставил лайк к фильму {}", userId, reviewId);
+        incrementUsefulToReview(reviewId, userId);
+        log.info("Добавлен лайк к отзыву {} от пользователя {} ", reviewId, userId);
     }
 
     @Override
-    public void decrementLikeToReview(Integer reviewId, Integer userId) {
-        final String sqlQuery = "UPDATE reviews SET " +
-                "useful = useful - 1 " +
-                "WHERE review_id = ?;";
-        int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId);
+    public void putDisikeToReview(Integer reviewId, Integer userId) {
+        final String sqlQuery = "INSERT INTO review_rates (review_id, user_id, is_like) " +
+                "VALUES " +
+                "(?, ?, false);";
+        int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId, userId);
         if (updatedRowCount == 0) {
-            throw new NotFoundException("Введены неверные данные при обновлении отзыва.");
+            throw new NotFoundException("Введены неверные данные при добавлении лайка к отзыву.");
         }
-        log.info("Пользователь {} поставил лайк к фильму {}", userId, reviewId);
+        decrementUsefulToReview(reviewId, userId);
+        log.info("Добавлен дизлайк к отзыву {} от пользователя {} ", reviewId, userId);
+    }
+
+    @Override
+    public void deleteLikeFromReview(Integer reviewId, Integer userId) {
+        final String sqlQuery = "DELETE FROM review_rates " +
+                "WHERE review_id = ? " +
+                "AND user_id = ? " +
+                "AND is_like = true;";
+        int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId, userId);
+        if (updatedRowCount == 0) {
+            throw new NotFoundException("Введены неверные данные при удалении лайка к отзыву.");
+        }
+        decrementUsefulToReview(reviewId, userId);
+        log.info("Удален лайк к отзыву {} от пользователя {} ", reviewId, userId);
+    }
+
+    @Override
+    public void deleteDisikeFromReview(Integer reviewId, Integer userId) {
+        final String sqlQuery = "DELETE FROM review_rates " +
+                "WHERE review_id = ? " +
+                "AND user_id = ? " +
+                "AND is_like = false;";
+        int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId, userId);
+        if (updatedRowCount == 0) {
+            throw new NotFoundException("Введены неверные данные при удалении дизлайка к отзыву.");
+        }
+        incrementUsefulToReview(reviewId, userId);
+        log.info("Удален дизлайк к отзыву {} от пользователя {} ", reviewId, userId);
     }
 
     @Override
@@ -119,6 +149,26 @@ public class ReviewDbStorage implements ReviewStorage {
             throw new NotFoundException("Отзыв с идентификатором " + reviewId + " не найден.");
         }
         log.info("Удален отзыв с индентификатором {}.", reviewId);
+    }
+
+    private void incrementUsefulToReview(Integer reviewId, Integer userId) {
+        final String sqlQuery = "UPDATE reviews SET " +
+                "useful = useful + 1 " +
+                "WHERE review_id = ?;";
+        int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId);
+        if (updatedRowCount == 0) {
+            throw new NotFoundException("Введены неверные данные при обновлении отзыва.");
+        }
+    }
+
+    private void decrementUsefulToReview(Integer reviewId, Integer userId) {
+        final String sqlQuery = "UPDATE reviews SET " +
+                "useful = useful - 1 " +
+                "WHERE review_id = ?;";
+        int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId);
+        if (updatedRowCount == 0) {
+            throw new NotFoundException("Введены неверные данные при обновлении отзыва.");
+        }
     }
 
     private Map<String, Object> reviewToMap(Review review) {
@@ -134,4 +184,5 @@ public class ReviewDbStorage implements ReviewStorage {
         }
         return map;
     }
+
 }
