@@ -176,6 +176,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE LOWER(film.name) LIKE (?) OR LOWER(d.name) LIKE (?) " +
                 "ORDER BY count DESC";
         String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в названии или в имени режиссёра подстроку {}", str);
         return jdbcTemplate.query(sql, filmMapper, searchStr, searchStr);
     }
 
@@ -192,6 +193,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE LOWER(d.name) LIKE (?) " +
                 "ORDER BY count DESC";
         String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в имени режиссёра подстроку {}", str);
         return jdbcTemplate.query(sql, filmMapper, searchStr);
     }
 
@@ -205,6 +207,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE LOWER(f.name) LIKE (?) " +
                 "ORDER BY count DESC";
         String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в названии подстроку {}", str);
         return jdbcTemplate.query(sql, filmMapper, searchStr);
     }
 
