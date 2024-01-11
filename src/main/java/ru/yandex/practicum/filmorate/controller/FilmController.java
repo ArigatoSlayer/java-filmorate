@@ -55,8 +55,16 @@ public class FilmController {
         return service.createFilm(film);
     }
 
+    @GetMapping("/search")
+    public List<Film> searchBySubstring(@RequestParam String query,
+                                        @RequestParam List<String> by) {
+        return service.searchBySubstring(query, by);
+    }
+
     @GetMapping("/common")
     public List<Film> getListCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
         return service.getListCommonFilms(userId, friendId);
     }
+
 }
+

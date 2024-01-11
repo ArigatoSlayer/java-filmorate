@@ -23,5 +23,12 @@ public interface FilmStorage {
 
     List<Film> getAllDirectorFilmsOrderByYear(int directorId);
 
+    List<Film> searchBySubstring(String str);
+
+    List<Film> searchBySubstringByFilms(String str);
+
+    List<Film> searchBySubstringByDirectors(String str);
+
     List<Film> getListCommonFilms(Integer userId, Integer friendId);
+
 }
