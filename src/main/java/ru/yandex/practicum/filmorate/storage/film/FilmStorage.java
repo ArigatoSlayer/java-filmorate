@@ -28,4 +28,7 @@ public interface FilmStorage {
     List<Film> searchBySubstringByFilms(String str);
 
     List<Film> searchBySubstringByDirectors(String str);
+
+    List<Film> getListCommonFilms(Integer userId, Integer friendId);
+
 }
