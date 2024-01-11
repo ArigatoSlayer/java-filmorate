@@ -108,7 +108,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addLike(int filmId, int userId) {
-        validate(filmId, userId);
+        validateFilm(filmId);
+        validateUser(userId);
         final String sqlQuery = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
 
         jdbcTemplate.update(sqlQuery, filmId, userId);
@@ -120,7 +121,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film deleteLike(int filmId, int userId) {
-        validate(filmId, userId);
+        validateFilm(filmId);
+        validateUser(userId);
         final String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
 
         jdbcTemplate.update(sqlQuery, filmId, userId);
@@ -139,7 +141,6 @@ public class FilmDbStorage implements FilmStorage {
                 "LIMIT ?";
         log.info("Отправлен топ {} фильмов", count);
         return jdbcTemplate.query(sqlQuery, filmMapper, count);
-
     }
 
     @Override
@@ -164,6 +165,30 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, filmMapper, directorId);
     }
 
+    @Override
+    public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
+        validateUser(userId);
+        validateUser(friendId);
+
+        String sqlQuery = "SELECT film.*, COUNT(likes.film_id) " +
+                "FROM film " +
+                "LEFT JOIN likes USING (film_id)" +
+                "WHERE film.film_id IN ( " +
+                    "SELECT likes.film_id " +
+                    "FROM likes " +
+                    "WHERE likes.user_id = ? " +
+                    "INTERSECT " +
+                    "SELECT likes.film_id " +
+                    "FROM likes " +
+                    "WHERE likes.user_id = ?) " +
+                "GROUP BY film.film_id " +
+                "ORDER BY COUNT(likes.film_id) DESC;";
+
+        log.info("Отправлен список общих фильмов.");
+
+        return jdbcTemplate.query(sqlQuery, filmMapper, userId, friendId);
+    }
+
     public Set<Integer> getLikesForCurrentFilm(int filmId) {
         final String sqlQuery = "SELECT user_id FROM likes WHERE film_id = ?";
         SqlRowSet likesRows = jdbcTemplate.queryForRowSet(sqlQuery, filmId);
@@ -175,18 +200,28 @@ public class FilmDbStorage implements FilmStorage {
         return likes;
     }
 
-    private void validate(int filmId, int userId) {
-        final String checkFilmQuery = "SELECT * FROM film WHERE film_id = ?";
+    private void validateUser(int userId) {
         final String checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
-
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkFilmQuery, filmId);
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
 
-        if (!filmRows.next() || !userRows.next()) {
-            log.warn("Фильм {} и(или) пользователь {} не найден.", filmId, userId);
+        if (!userRows.next()) {
+            log.warn("Пользователь {} не найден.", userId);
             throw new NotFoundException("Фильм или пользователь не найдены");
         }
     }
+
+    private void validateFilm(int filmId) {
+        final String checkFilmQuery = "SELECT * FROM film WHERE film_id = ?";
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkFilmQuery, filmId);
+
+        if (!filmRows.next()) {
+            log.warn("Фильм {} не найден.", filmId);
+            throw new NotFoundException("Фильм или пользователь не найдены");
+        }
+    }
+
+
+
 
     private Map<String, Object> getFilmFields(Film film) {
         Map<String, Object> fields = new HashMap<>();
