@@ -211,7 +211,7 @@ public class FilmDbStorage implements FilmStorage {
         log.info("Отправлен список фильмов содержащий в названии подстроку {}", str);
         return jdbcTemplate.query(sql, filmMapper, searchStr);
     }
-  
+
     public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
         validateUser(userId);
         validateUser(friendId);
