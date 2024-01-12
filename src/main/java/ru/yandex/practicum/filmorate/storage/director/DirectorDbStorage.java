@@ -36,7 +36,7 @@ public class DirectorDbStorage implements DirectorStorage {
         final String sqlQuery = "SELECT * FROM directors " +
                 "WHERE director_id = ?;";
         try {
-            log.info("Отправлен режиссер с индентификатором {} ", directorId);
+            log.info("Отправлен режиссер с индентификатором {}.", directorId);
             return jdbcTemplate.queryForObject(sqlQuery, directorMapper, directorId);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Режиссер с идентификатором " + directorId + " не найден.");
@@ -50,7 +50,7 @@ public class DirectorDbStorage implements DirectorStorage {
                 .usingGeneratedKeyColumns("director_id")
                 .executeAndReturnKey(Map.of("name", director.getName()));
         director.setId((int) returnedKey);
-        log.info("Создан режиссер с индентификатором {} ", director.getId());
+        log.info("Создан режиссер с индентификатором {}.", director.getId());
         return director;
     }
 
@@ -62,7 +62,7 @@ public class DirectorDbStorage implements DirectorStorage {
         if (updatedRowCount == 0) {
             throw new NotFoundException("Режиссер с идентификатором " + director.getId() + " не найден.");
         }
-        log.info("Обновлен режиссер с индентификатором {} ", director.getId());
+        log.info("Обновлен режиссер с индентификатором {}.", director.getId());
         return director;
     }
 
@@ -74,7 +74,7 @@ public class DirectorDbStorage implements DirectorStorage {
         if (updatedRowCount == 0) {
             throw new NotFoundException("Режиссер с идентификатором " + directorId + " не найден.");
         }
-        log.info("Удален режиссер с индентификатором {} ", directorId);
+        log.info("Удален режиссер с индентификатором {}.", directorId);
     }
 
     @Override
