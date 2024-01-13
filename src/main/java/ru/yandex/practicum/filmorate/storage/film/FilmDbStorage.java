@@ -58,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
 
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getId());
-        log.info("Обновлен фильм с индентификатором {} ", film.getId());
+        log.info("Обновлен фильм с идентификатором {} ", film.getId());
         return getFilmById(film.getId());
     }
 
@@ -80,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
                 }
             }
         }
-        log.info("Создан фильм с индентификатором {} ", film.getId());
+        log.info("Создан фильм с идентификатором {} ", film.getId());
         return getFilmById(film.getId());
     }
 
@@ -101,14 +101,15 @@ public class FilmDbStorage implements FilmStorage {
             log.warn("Фильм с идентификатором {} не найден.", filmId);
             throw new NotFoundException("Фильм с идентификатором " + filmId + " не найден.");
         } else {
-            log.info("Отправлен фильм с индентификатором {} ", filmId);
+            log.info("Отправлен фильм с идентификатором {} ", filmId);
             return jdbcTemplate.queryForObject(sql, filmMapper, filmId);
         }
     }
 
     @Override
     public Film addLike(int filmId, int userId) {
-        validate(filmId, userId);
+        validateFilm(filmId);
+        validateUser(userId);
         final String sqlQuery = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
 
         jdbcTemplate.update(sqlQuery, filmId, userId);
@@ -120,7 +121,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film deleteLike(int filmId, int userId) {
-        validate(filmId, userId);
+        validateFilm(filmId);
+        validateUser(userId);
         final String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
 
         jdbcTemplate.update(sqlQuery, filmId, userId);
@@ -128,6 +130,22 @@ public class FilmDbStorage implements FilmStorage {
         log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
 
         return getFilmById(filmId);
+    }
+
+    @Override
+    public void deleteFilm(int id) {
+        final String query = "DELETE FROM film WHERE film_id = ?";
+        isExist(id);
+        jdbcTemplate.update(query, id);
+    }
+
+    private void isExist(int id) {
+        final String checkUserQuery = "SELECT * FROM film WHERE film_id = ?";
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, id);
+        if (!userRows.next()) {
+            log.warn("Пользователь с идентификатором {} не найден.", id);
+            throw new NotFoundException("Пользователь с идентификатором " + id + " не найден.");
+        }
     }
 
     @Override
@@ -139,7 +157,98 @@ public class FilmDbStorage implements FilmStorage {
                 "LIMIT ?";
         log.info("Отправлен топ {} фильмов", count);
         return jdbcTemplate.query(sqlQuery, filmMapper, count);
+    }
 
+    @Override
+    public List<Film> getAllDirectorFilmsOrderByLikes(int directorId) {
+        String sqlQuery = "SELECT film.*, COUNT(likes.film_id) " +
+                "FROM film " +
+                "INNER JOIN film_directors USING (film_id) " +
+                "LEFT JOIN likes USING (film_id) " +
+                "WHERE film_directors.director_id = ? " +
+                "GROUP BY film.film_id " +
+                "ORDER BY COUNT(likes.film_id) DESC;";
+        return jdbcTemplate.query(sqlQuery, filmMapper, directorId);
+    }
+
+    @Override
+    public List<Film> getAllDirectorFilmsOrderByYear(int directorId) {
+        String sqlQuery = "SELECT * " +
+                "FROM film " +
+                "INNER JOIN film_directors USING (film_id) " +
+                "WHERE director_id = ? " +
+                "ORDER BY release_date;";
+        return jdbcTemplate.query(sqlQuery, filmMapper, directorId);
+    }
+
+    @Override
+    public List<Film> searchBySubstring(String str) {
+        String sql = "SELECT film.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE film.film_id = l.film_id) as count " +
+                "FROM film " +
+                "LEFT JOIN film_directors AS fd ON fd.film_id = film.film_id " +
+                "LEFT JOIN directors AS d ON d.director_id = fd.director_id " +
+                "WHERE LOWER(film.name) LIKE (?) OR LOWER(d.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в названии или в имени режиссёра подстроку {}", str);
+        return jdbcTemplate.query(sql, filmMapper, searchStr, searchStr);
+    }
+
+
+    @Override
+    public List<Film> searchBySubstringByDirectors(String str) {
+        String sql = "SELECT film.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE film.film_id = l.film_id) as count " +
+                "FROM film " +
+                "JOIN film_directors AS fd ON fd.film_id = film.film_id " +
+                "JOIN directors AS d ON d.director_id = fd.director_id " +
+                "WHERE LOWER(d.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в имени режиссёра подстроку {}", str);
+        return jdbcTemplate.query(sql, filmMapper, searchStr);
+    }
+
+    @Override
+    public List<Film> searchBySubstringByFilms(String str) {
+        String sql = "SELECT f.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE f.film_id = l.film_id) as count " +
+                "FROM film as f " +
+                "WHERE LOWER(f.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в названии подстроку {}", str);
+        return jdbcTemplate.query(sql, filmMapper, searchStr);
+    }
+
+    public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
+        validateUser(userId);
+        validateUser(friendId);
+
+        String sqlQuery = "SELECT film.*, COUNT(likes.film_id) " +
+                "FROM film " +
+                "LEFT JOIN likes USING (film_id)" +
+                "WHERE film.film_id IN ( " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ? " +
+                "INTERSECT " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ?) " +
+                "GROUP BY film.film_id " +
+                "ORDER BY COUNT(likes.film_id) DESC;";
+
+        log.info("Отправлен список общих фильмов.");
+
+        return jdbcTemplate.query(sqlQuery, filmMapper, userId, friendId);
     }
 
     public Set<Integer> getLikesForCurrentFilm(int filmId) {
@@ -153,15 +262,22 @@ public class FilmDbStorage implements FilmStorage {
         return likes;
     }
 
-    private void validate(int filmId, int userId) {
-        final String checkFilmQuery = "SELECT * FROM film WHERE film_id = ?";
+    private void validateUser(int userId) {
         final String checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
-
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkFilmQuery, filmId);
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
 
-        if (!filmRows.next() || !userRows.next()) {
-            log.warn("Фильм {} и(или) пользователь {} не найден.", filmId, userId);
+        if (!userRows.next()) {
+            log.warn("Пользователь {} не найден.", userId);
+            throw new NotFoundException("Фильм или пользователь не найдены");
+        }
+    }
+
+    private void validateFilm(int filmId) {
+        final String checkFilmQuery = "SELECT * FROM film WHERE film_id = ?";
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkFilmQuery, filmId);
+
+        if (!filmRows.next()) {
+            log.warn("Фильм {} не найден.", filmId);
             throw new NotFoundException("Фильм или пользователь не найдены");
         }
     }
@@ -177,4 +293,6 @@ public class FilmDbStorage implements FilmStorage {
         }
         return fields;
     }
+
+
 }
