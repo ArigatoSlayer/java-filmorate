@@ -119,6 +119,7 @@ public class UserDbStorage implements UserStorage {
         final String query = "DELETE FROM users WHERE user_id = ?";
         isExist(id);
         jdbcTemplate.update(query, id);
+        log.info("Удален пользователь с id: {}", id);
     }
 
     @Override

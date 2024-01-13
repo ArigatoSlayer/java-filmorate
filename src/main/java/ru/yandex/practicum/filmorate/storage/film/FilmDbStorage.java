@@ -137,6 +137,7 @@ public class FilmDbStorage implements FilmStorage {
         final String query = "DELETE FROM film WHERE film_id = ?";
         isExist(id);
         jdbcTemplate.update(query, id);
+        log.info("Удален фильм с id: {}", id);
     }
 
     private void isExist(int id) {
