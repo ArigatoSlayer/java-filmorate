@@ -135,16 +135,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteFilm(int id) {
         final String sql = "DELETE FROM film WHERE film_id = ?";
-
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, id);
-
-        if (!filmRows.next()) {
-            log.warn("Фильм с идентификатором {} не найден.", id);
-            throw new NotFoundException("Фильм с идентификатором " + id + " не найден.");
-        } else {
-            log.info("Удален фильм с индентификатором {} ", id);
-            jdbcTemplate.update(sql, id);
-        }
+        isExist(id);
+        jdbcTemplate.update(sql, id);
     }
 
     @Override
@@ -235,13 +227,13 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM film " +
                 "LEFT JOIN likes USING (film_id)" +
                 "WHERE film.film_id IN ( " +
-                    "SELECT likes.film_id " +
-                    "FROM likes " +
-                    "WHERE likes.user_id = ? " +
-                    "INTERSECT " +
-                    "SELECT likes.film_id " +
-                    "FROM likes " +
-                    "WHERE likes.user_id = ?) " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ? " +
+                "INTERSECT " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ?) " +
                 "GROUP BY film.film_id " +
                 "ORDER BY COUNT(likes.film_id) DESC;";
 
@@ -291,5 +283,14 @@ public class FilmDbStorage implements FilmStorage {
             fields.put("RATING_ID", film.getMpa().getId());
         }
         return fields;
+    }
+
+    private void isExist(Integer userId) {
+        final String checkUserQuery = "SELECT * FROM film WHERE film_id = ?";
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
+        if (!userRows.next()) {
+            log.warn("Пользователь с идентификатором {} не найден.", userId);
+            throw new NotFoundException("Пользователь с идентификатором " + userId + " не найден.");
+        }
     }
 }

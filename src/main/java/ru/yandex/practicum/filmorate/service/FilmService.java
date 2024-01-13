@@ -93,7 +93,7 @@ public class FilmService {
     }
 
     public void deleteFilm(int id) {
-        storage.deleteFilm(id);
+        filmStorage.deleteFilm(id);
     }
 
     private boolean isValidFilm(Film film) {
