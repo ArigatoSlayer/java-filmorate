@@ -77,6 +77,11 @@ public class FilmService {
         return directorStorage.setDirectorsToFilmList(filmStorage.getListOfTopFilms(count));
     }
 
+    public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
+        return filmStorage.getListCommonFilms(userId, friendId);
+
+    }
+
     private boolean isValidFilm(Film film) {
         film.setName(film.getName().trim());
         if (film.getName().isEmpty()) {
@@ -91,8 +96,4 @@ public class FilmService {
         return true;
     }
 
-    public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
-        return filmStorage.getListCommonFilms(userId, friendId);
-
-    }
 }

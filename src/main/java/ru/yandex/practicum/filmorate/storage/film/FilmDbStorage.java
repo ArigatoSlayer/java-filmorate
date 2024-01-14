@@ -115,7 +115,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId, userId);
 
         log.info("Пользователь {} поставил лайк к фильму {}", userId, filmId);
-
+        addFeed(userId, 2, filmId);
         return getFilmById(filmId);
     }
 
@@ -128,7 +128,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId, userId);
 
         log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
-
+        addFeed(userId, 1, filmId);
         return getFilmById(filmId);
     }
 
@@ -200,6 +200,15 @@ public class FilmDbStorage implements FilmStorage {
         return likes;
     }
 
+    private void isExist(int id) {
+        final String checkUserQuery = "SELECT * FROM film WHERE film_id = ?";
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, id);
+        if (!userRows.next()) {
+            log.warn("Пользователь с идентификатором {} не найден.", id);
+            throw new NotFoundException("Пользователь с идентификатором " + id + " не найден.");
+        }
+    }
+
     private void validateUser(int userId) {
         final String checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
@@ -230,5 +239,11 @@ public class FilmDbStorage implements FilmStorage {
             fields.put("RATING_ID", film.getMpa().getId());
         }
         return fields;
+    }
+
+    private void addFeed(int userId, int operationId, int entityId) {
+        String sql = "INSERT INTO feed (user_id, event_type_id, type_operation_id, entity_id) " +
+                "VALUES (?, 1, ?, ?)";
+        jdbcTemplate.update(sql, userId, operationId, entityId);
     }
 }

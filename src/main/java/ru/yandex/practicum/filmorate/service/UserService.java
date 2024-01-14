@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -56,6 +57,11 @@ public class UserService {
     public List<User> getMutualFriends(Integer userId, Integer friendId) {
         return storage.getMutualFriends(userId, friendId);
     }
+
+    public List<Feed> getFeedById(int id) {
+        return storage.getFeedById(id);
+    }
+
 
     private boolean isValidUser(User user) {
         if (user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
