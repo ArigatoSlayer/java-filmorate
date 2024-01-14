@@ -200,15 +200,6 @@ public class FilmDbStorage implements FilmStorage {
         return likes;
     }
 
-    private void isExist(int id) {
-        final String checkUserQuery = "SELECT * FROM film WHERE film_id = ?";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, id);
-        if (!userRows.next()) {
-            log.warn("Пользователь с идентификатором {} не найден.", id);
-            throw new NotFoundException("Пользователь с идентификатором " + id + " не найден.");
-        }
-    }
-
     private void validateUser(int userId) {
         final String checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);

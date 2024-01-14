@@ -152,7 +152,6 @@ public class UserDbStorage implements UserStorage {
                 "LEFT JOIN type_operation AS o ON f.type_operation_id = o.operation_id " +
                 "WHERE f.user_id = ?;";
         log.info("Отправлен запрос на ленту событий пользователя {}", id);
-        List<Feed> st = jdbcTemplate.query(sqlQuery, feedMapper, id);
         return jdbcTemplate.query(sqlQuery, feedMapper, id);
     }
 
