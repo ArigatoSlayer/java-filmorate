@@ -204,7 +204,7 @@ public class ReviewDbStorage implements ReviewStorage {
         }
     }
 
-    private Integer getUserId (int reviewId) {
+    private Integer getUserId(int reviewId) {
         String sql = "SELECT user_id FROM reviews " +
                 "WHERE review_id = ?;";
         return jdbcTemplate.queryForObject(sql, Integer.class, reviewId);
