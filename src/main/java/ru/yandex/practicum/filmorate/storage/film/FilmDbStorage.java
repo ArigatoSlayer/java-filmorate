@@ -133,6 +133,16 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void deleteFilm(int id) {
+        final String query = "DELETE FROM film WHERE film_id = ?";
+        if (jdbcTemplate.update(query, id) == 0) {
+            throw new NotFoundException("Фильм с идентификатором " + id + " не найден.");
+        } else {
+            log.info("Удален фильм с id: {}", id);
+        }
+    }
+
+    @Override
     public List<Film> getListOfTopFilms(int count) {
         String sqlQuery = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
                 "LEFT JOIN likes AS l ON film.film_id=l.film_id " +
@@ -220,13 +230,13 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM film " +
                 "LEFT JOIN likes USING (film_id)" +
                 "WHERE film.film_id IN ( " +
-                    "SELECT likes.film_id " +
-                    "FROM likes " +
-                    "WHERE likes.user_id = ? " +
-                    "INTERSECT " +
-                    "SELECT likes.film_id " +
-                    "FROM likes " +
-                    "WHERE likes.user_id = ?) " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ? " +
+                "INTERSECT " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ?) " +
                 "GROUP BY film.film_id " +
                 "ORDER BY COUNT(likes.film_id) DESC;";
 
@@ -277,4 +287,6 @@ public class FilmDbStorage implements FilmStorage {
         }
         return fields;
     }
+
+
 }

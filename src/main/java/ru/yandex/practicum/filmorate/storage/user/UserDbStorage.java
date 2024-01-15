@@ -115,6 +115,15 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, userMapper, userId);
     }
 
+    public void deleteUser(int id) {
+        final String query = "DELETE FROM users WHERE user_id = ?";
+        if (jdbcTemplate.update(query, id) == 0) {
+            throw new NotFoundException("Пользователь с идентификатором " + id + " не найден.");
+        } else {
+            log.info("Удален пользователь с id: {}", id);
+        }
+    }
+
     @Override
     public List<User> getMutualFriends(int userId, int secondUserId) {
         isExist(userId);
@@ -142,6 +151,4 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Пользователь с идентификатором " + userId + " не найден.");
         }
     }
-
-
 }

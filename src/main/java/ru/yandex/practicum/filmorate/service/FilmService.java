@@ -92,6 +92,10 @@ public class FilmService {
         return directorStorage.setDirectorsToFilmList(films);
     }
 
+    public void deleteFilm(int id) {
+        filmStorage.deleteFilm(id);
+    }
+
     private boolean isValidFilm(Film film) {
         film.setName(film.getName().trim());
         if (film.getName().isEmpty()) {
