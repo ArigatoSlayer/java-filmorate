@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -60,4 +61,10 @@ public class UserController {
     public void deleteUser(@PathVariable int id) {
         service.deleteUser(id);
     }
+
+    @GetMapping("/{id}/feed")
+    public List<Feed> getFeedById(@PathVariable int id) {
+        return service.getFeedById(id);
+    }
+
 }

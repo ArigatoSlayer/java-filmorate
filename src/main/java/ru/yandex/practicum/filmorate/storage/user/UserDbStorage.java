@@ -9,7 +9,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.mapper.FeedMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
 
 import java.sql.Date;
@@ -23,6 +25,7 @@ import java.util.List;
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
     private final UserMapper userMapper;
+    private final FeedMapper feedMapper;
 
 
     @Override
@@ -93,7 +96,7 @@ public class UserDbStorage implements UserStorage {
             jdbcTemplate.update(sqlQuery, friendId, userId, true);
             log.info("Пользователь {} добавил в друзья {}", userId, friendId);
         }
-
+        addFeed(userId, 2, friendId);
         return getUserById(userId);
     }
 
@@ -103,6 +106,7 @@ public class UserDbStorage implements UserStorage {
 
         jdbcTemplate.update(sqlQuery, userId, friendId);
         log.info("Пользователь {} удалил из друзей {}", userId, friendId);
+        addFeed(userId, 1, friendId);
     }
 
     @Override
@@ -122,6 +126,23 @@ public class UserDbStorage implements UserStorage {
         } else {
             log.info("Удален пользователь с id: {}", id);
         }
+    }
+
+    @Override
+    public List<Feed> getFeedById(int id) {
+        isExist(id);
+        final String sqlQuery = "SELECT f.timestamp_event, " +
+                "f.user_id, " +
+                "t.type_name, " +
+                "o.operation_name, " +
+                "f.event_id, " +
+                "f.entity_id " +
+                "FROM feed AS f " +
+                "LEFT JOIN event_type AS t ON f.event_type_id = t.type_id " +
+                "LEFT JOIN type_operation AS o ON f.type_operation_id = o.operation_id " +
+                "WHERE f.user_id = ?;";
+        log.info("Отправлен запрос на ленту событий пользователя {}", id);
+        return jdbcTemplate.query(sqlQuery, feedMapper, id);
     }
 
     @Override
@@ -151,6 +172,13 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Пользователь с идентификатором " + userId + " не найден.");
         }
     }
-    // НОВАЯ ВЕТКА
 
+    private void addFeed(int userId, int operationId, int entityId) {
+        String sql = "INSERT INTO feed (user_id, event_type_id, type_operation_id, entity_id) " +
+                "VALUES (?, 3, ?, ?)";
+        int updatedRowCount = jdbcTemplate.update(sql, userId, operationId, entityId);
+        if (updatedRowCount == 0) {
+            throw new NotFoundException("Введены неверные данные при обновлении отзыва.");
+        }
+    }
 }
