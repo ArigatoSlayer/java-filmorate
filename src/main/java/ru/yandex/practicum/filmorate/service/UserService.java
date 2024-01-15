@@ -37,7 +37,6 @@ public class UserService {
         return storage.updateUser(user);
     }
 
-
     public User getUserById(Integer id) {
         return storage.getUserById(id);
     }
@@ -57,12 +56,16 @@ public class UserService {
     public List<User> getMutualFriends(Integer userId, Integer friendId) {
         return storage.getMutualFriends(userId, friendId);
     }
-
+  
     public List<Feed> getFeedById(int id) {
         return storage.getFeedById(id);
     }
 
 
+    public void deleteUser(int id) {
+        storage.deleteUser(id);
+    }
+  
     private boolean isValidUser(User user) {
         if (user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
             throw new ValidationException("Email пустой или не содержит: @");

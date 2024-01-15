@@ -24,4 +24,6 @@ public interface UserStorage {
     List<User> getMutualFriends(int userId, int secondUserId);
 
     List<Feed> getFeedById(int id);
+
+    void deleteUser(int id);
 }

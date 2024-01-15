@@ -42,14 +42,20 @@ public class ReviewService {
         return reviewStorage.putReview(review);
     }
 
-    public void incrementLikeToReview(Integer reviewId, Integer userId) {
-        userStorage.getUserById(userId);
-        reviewStorage.incrementLikeToReview(reviewId, userId);
+    public void putLikeToReview(Integer reviewId, Integer userId) {
+        reviewStorage.putLikeToReview(reviewId, userId);
     }
 
-    public void decrementLikeToReview(Integer reviewId, Integer userId) {
-        userStorage.getUserById(userId);
-        reviewStorage.decrementLikeToReview(reviewId, userId);
+    public void putDislikeToReview(Integer reviewId, Integer userId) {
+        reviewStorage.putDisikeToReview(reviewId, userId);
+    }
+
+    public void deleteLikeFromReview(Integer reviewId, Integer userId) {
+        reviewStorage.deleteLikeFromReview(reviewId, userId);
+    }
+
+    public void deleteDislikeFromReview(Integer reviewId, Integer userId) {
+        reviewStorage.deleteDisikeFromReview(reviewId, userId);
     }
 
     public void deleteReviewById(Integer reviewId) {

@@ -16,9 +16,13 @@ public interface ReviewStorage {
 
     Review putReview(Review review);
 
-    void incrementLikeToReview(Integer reviewId, Integer userId);
+    void putLikeToReview(Integer reviewId, Integer userId);
 
-    void decrementLikeToReview(Integer reviewId, Integer userId);
+    void putDisikeToReview(Integer reviewId, Integer userId);
+
+    void deleteLikeFromReview(Integer reviewId, Integer userId);
+
+    void deleteDisikeFromReview(Integer reviewId, Integer userId);
 
     void deleteReviewById(Integer reviewId);
 }

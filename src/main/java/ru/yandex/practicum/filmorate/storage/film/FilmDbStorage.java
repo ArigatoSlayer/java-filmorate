@@ -58,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
 
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getId());
-        log.info("Обновлен фильм с индентификатором {} ", film.getId());
+        log.info("Обновлен фильм с идентификатором {} ", film.getId());
         return getFilmById(film.getId());
     }
 
@@ -80,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
                 }
             }
         }
-        log.info("Создан фильм с индентификатором {} ", film.getId());
+        log.info("Создан фильм с идентификатором {} ", film.getId());
         return getFilmById(film.getId());
     }
 
@@ -101,7 +101,7 @@ public class FilmDbStorage implements FilmStorage {
             log.warn("Фильм с идентификатором {} не найден.", filmId);
             throw new NotFoundException("Фильм с идентификатором " + filmId + " не найден.");
         } else {
-            log.info("Отправлен фильм с индентификатором {} ", filmId);
+            log.info("Отправлен фильм с идентификатором {} ", filmId);
             return jdbcTemplate.queryForObject(sql, filmMapper, filmId);
         }
     }
@@ -130,6 +130,16 @@ public class FilmDbStorage implements FilmStorage {
         log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
         addFeed(userId, 1, filmId);
         return getFilmById(filmId);
+    }
+
+    @Override
+    public void deleteFilm(int id) {
+        final String query = "DELETE FROM film WHERE film_id = ?";
+        if (jdbcTemplate.update(query, id) == 0) {
+            throw new NotFoundException("Фильм с идентификатором " + id + " не найден.");
+        } else {
+            log.info("Удален фильм с id: {}", id);
+        }
     }
 
     @Override
@@ -166,6 +176,52 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> searchBySubstring(String str) {
+        String sql = "SELECT film.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE film.film_id = l.film_id) as count " +
+                "FROM film " +
+                "LEFT JOIN film_directors AS fd ON fd.film_id = film.film_id " +
+                "LEFT JOIN directors AS d ON d.director_id = fd.director_id " +
+                "WHERE LOWER(film.name) LIKE (?) OR LOWER(d.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в названии или в имени режиссёра подстроку {}", str);
+        return jdbcTemplate.query(sql, filmMapper, searchStr, searchStr);
+    }
+
+
+    @Override
+    public List<Film> searchBySubstringByDirectors(String str) {
+        String sql = "SELECT film.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE film.film_id = l.film_id) as count " +
+                "FROM film " +
+                "JOIN film_directors AS fd ON fd.film_id = film.film_id " +
+                "JOIN directors AS d ON d.director_id = fd.director_id " +
+                "WHERE LOWER(d.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в имени режиссёра подстроку {}", str);
+        return jdbcTemplate.query(sql, filmMapper, searchStr);
+    }
+
+    @Override
+    public List<Film> searchBySubstringByFilms(String str) {
+        String sql = "SELECT f.*, " +
+                "(SELECT COUNT(l.film_id) " +
+                "FROM likes AS l " +
+                "WHERE f.film_id = l.film_id) as count " +
+                "FROM film as f " +
+                "WHERE LOWER(f.name) LIKE (?) " +
+                "ORDER BY count DESC";
+        String searchStr = "%" + str.toLowerCase() + "%";
+        log.info("Отправлен список фильмов содержащий в названии подстроку {}", str);
+        return jdbcTemplate.query(sql, filmMapper, searchStr);
+    }
+
     public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
         validateUser(userId);
         validateUser(friendId);
@@ -174,13 +230,13 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM film " +
                 "LEFT JOIN likes USING (film_id)" +
                 "WHERE film.film_id IN ( " +
-                    "SELECT likes.film_id " +
-                    "FROM likes " +
-                    "WHERE likes.user_id = ? " +
-                    "INTERSECT " +
-                    "SELECT likes.film_id " +
-                    "FROM likes " +
-                    "WHERE likes.user_id = ?) " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ? " +
+                "INTERSECT " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ?) " +
                 "GROUP BY film.film_id " +
                 "ORDER BY COUNT(likes.film_id) DESC;";
 
@@ -231,7 +287,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         return fields;
     }
-
+  
     private void addFeed(int userId, int operationId, int entityId) {
         String sql = "INSERT INTO feed (user_id, event_type_id, type_operation_id, entity_id) " +
                 "VALUES (?, 1, ?, ?)";

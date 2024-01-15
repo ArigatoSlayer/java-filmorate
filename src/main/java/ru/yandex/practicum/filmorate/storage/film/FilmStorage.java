@@ -17,11 +17,20 @@ public interface FilmStorage {
 
     Film deleteLike(int filmId, int userId);
 
+    void deleteFilm(int id);
+
     List<Film> getListOfTopFilms(int count);
 
     List<Film> getAllDirectorFilmsOrderByLikes(int directorId);
 
     List<Film> getAllDirectorFilmsOrderByYear(int directorId);
 
+    List<Film> searchBySubstring(String str);
+
+    List<Film> searchBySubstringByFilms(String str);
+
+    List<Film> searchBySubstringByDirectors(String str);
+
     List<Film> getListCommonFilms(Integer userId, Integer friendId);
+
 }

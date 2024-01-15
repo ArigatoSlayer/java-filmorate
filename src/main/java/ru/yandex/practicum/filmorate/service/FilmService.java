@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
@@ -80,6 +81,22 @@ public class FilmService {
     public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
         return filmStorage.getListCommonFilms(userId, friendId);
 
+    public List<Film> searchBySubstring(String str, List<String> by) {
+        List<Film> films;
+        if (by.size() == 2) {
+            films = filmStorage.searchBySubstring(str);
+        } else if (by.size() == 1 && by.contains("title")) {
+            films = filmStorage.searchBySubstringByFilms(str);
+        } else if (by.size() == 1 && by.contains("director")) {
+            films = filmStorage.searchBySubstringByDirectors(str);
+        } else {
+            throw new NotFoundException("Фильмы с подстрокой " + str + " не найдены");
+        }
+        return directorStorage.setDirectorsToFilmList(films);
+    }
+
+    public void deleteFilm(int id) {
+        filmStorage.deleteFilm(id);
     }
 
     private boolean isValidFilm(Film film) {
@@ -96,4 +113,8 @@ public class FilmService {
         return true;
     }
 
+    public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
+        return filmStorage.getListCommonFilms(userId, friendId);
+
+    }
 }
