@@ -135,17 +135,10 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteFilm(int id) {
         final String query = "DELETE FROM film WHERE film_id = ?";
-        isExist(id);
-        jdbcTemplate.update(query, id);
-        log.info("Удален фильм с id: {}", id);
-    }
-
-    private void isExist(int id) {
-        final String checkUserQuery = "SELECT * FROM film WHERE film_id = ?";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, id);
-        if (!userRows.next()) {
-            log.warn("Пользователь с идентификатором {} не найден.", id);
-            throw new NotFoundException("Пользователь с идентификатором " + id + " не найден.");
+        if (jdbcTemplate.update(query, id) == 0) {
+            throw new NotFoundException("Фильм с идентификатором " + id + " не найден.");
+        } else {
+            log.info("Удален фильм с id: {}", id);
         }
     }
 
