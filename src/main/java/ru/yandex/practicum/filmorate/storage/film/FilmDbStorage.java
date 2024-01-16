@@ -293,7 +293,7 @@ public class FilmDbStorage implements FilmStorage {
                 "VALUES (?, 1, ?, ?)";
         int updatedRowCount = jdbcTemplate.update(sql, userId, operationId, entityId);
         if (updatedRowCount == 0) {
-            throw new NotFoundException("Введены неверные данные при обновлении отзыва.");
+            throw new NotFoundException("Произошла ошибка при добавлении действия в ленту событий");
         }
     }
 }
