@@ -27,9 +27,17 @@ public class FilmController {
         return service.getFilmById(filmId);
     }
 
+    @GetMapping("/search")
+    public List<Film> searchBySubstring(@RequestParam String query,
+                                        @RequestParam List<String> by) {
+        return service.searchBySubstring(query, by);
+    }
+
     @GetMapping("/popular")
-    public List<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
-        return service.topFilms(count);
+    public List<Film> getMostPopularFilms(@RequestParam(required = false) Integer count,
+                                          @RequestParam(required = false) Integer genreId,
+                                          @RequestParam(required = false) Integer year) {
+        return service.getMostPopularsFilms(count, genreId, year);
     }
 
     @PutMapping
