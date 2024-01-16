@@ -2,12 +2,14 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
@@ -26,8 +28,21 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
-        return service.topFilms(count);
+    public List<Film> getMostPopularFilms(@RequestParam(required = false) Integer count,
+                                          @RequestParam(required = false) Integer genreId,
+                                          @RequestParam(required = false) Integer year) {
+        return service.getMostPopularsFilms(count, genreId, year);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchBySubstring(@RequestParam String query,
+                                        @RequestParam List<String> by) {
+        return service.searchBySubstring(query, by);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getListCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        return service.getListCommonFilms(userId, friendId);
     }
 
     @GetMapping("/director/{directorId}")
@@ -54,17 +69,5 @@ public class FilmController {
     public Film createFilm(@Valid @RequestBody Film film) {
         return service.createFilm(film);
     }
-
-    @GetMapping("/search")
-    public List<Film> searchBySubstring(@RequestParam String query,
-                                        @RequestParam List<String> by) {
-        return service.searchBySubstring(query, by);
-    }
-
-    @GetMapping("/common")
-    public List<Film> getListCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
-        return service.getListCommonFilms(userId, friendId);
-    }
-
 }
 
