@@ -74,8 +74,20 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> topFilms(int count) {
-        return directorStorage.setDirectorsToFilmList(filmStorage.getListOfTopFilms(count));
+    public List<Film> getMostPopularsFilms(Integer count, Integer genreId, Integer year) {
+        List<Film> popularsFilms;
+        if (genreId != null && year != null) {
+            popularsFilms = filmStorage.getListTopFilmsByGenreAndYear(year, genreId);
+        } else if (count != null) {
+            popularsFilms = filmStorage.getListTopFilmsByCount(count);
+        } else if (year != null) {
+            popularsFilms = filmStorage.getListTopFilmsByYear(year);
+        } else if (genreId != null) {
+            popularsFilms = filmStorage.getListOfTopFilmsByGenre(genreId);
+        } else {
+            popularsFilms = filmStorage.getListOfTopFilms();
+        }
+        return directorStorage.setDirectorsToFilmList(popularsFilms);
     }
 
     public List<Film> searchBySubstring(String str, List<String> by) {
@@ -90,6 +102,10 @@ public class FilmService {
             throw new NotFoundException("Фильмы с подстрокой " + str + " не найдены");
         }
         return directorStorage.setDirectorsToFilmList(films);
+    }
+
+    public void deleteFilm(int id) {
+        filmStorage.deleteFilm(id);
     }
 
     private boolean isValidFilm(Film film) {

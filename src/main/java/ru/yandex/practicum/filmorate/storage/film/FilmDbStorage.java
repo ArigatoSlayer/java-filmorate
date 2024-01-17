@@ -115,7 +115,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId, userId);
 
         log.info("Пользователь {} поставил лайк к фильму {}", userId, filmId);
-
+        addFeed(userId, 2, filmId);
         return getFilmById(filmId);
     }
 
@@ -128,12 +128,32 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId, userId);
 
         log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
-
+        addFeed(userId, 1, filmId);
         return getFilmById(filmId);
     }
 
     @Override
-    public List<Film> getListOfTopFilms(int count) {
+    public void deleteFilm(int id) {
+        final String query = "DELETE FROM film WHERE film_id = ?";
+        if (jdbcTemplate.update(query, id) == 0) {
+            throw new NotFoundException("Фильм с идентификатором " + id + " не найден.");
+        } else {
+            log.info("Удален фильм с id: {}", id);
+        }
+    }
+
+    @Override
+    public List<Film> getListOfTopFilms() {
+        String sqlQuery = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
+                "LEFT JOIN likes AS l ON film.film_id=l.film_id " +
+                "GROUP BY film.film_id " +
+                "ORDER BY count DESC";
+        log.info("Отправлен топ фильмов");
+        return jdbcTemplate.query(sqlQuery, filmMapper);
+    }
+
+    @Override
+    public List<Film> getListTopFilmsByCount(Integer count) {
         String sqlQuery = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
                 "LEFT JOIN likes AS l ON film.film_id=l.film_id " +
                 "GROUP BY film.film_id " +
@@ -141,6 +161,41 @@ public class FilmDbStorage implements FilmStorage {
                 "LIMIT ?";
         log.info("Отправлен топ {} фильмов", count);
         return jdbcTemplate.query(sqlQuery, filmMapper, count);
+    }
+
+    @Override
+    public List<Film> getListTopFilmsByYear(Integer year) {
+        String sql = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
+                "LEFT JOIN likes AS l ON film.film_id=l.film_id " +
+                "WHERE EXTRACT(YEAR FROM release_date) = ? " +
+                "GROUP BY film.film_id";
+        log.info("Отправлен топ фильмов {} года", year);
+        return jdbcTemplate.query(sql, filmMapper, year);
+    }
+
+    @Override
+    public List<Film> getListOfTopFilmsByGenre(Integer genreId) {
+        String sql = "SELECT film.*, COUNT(l.film_id) AS count FROM film " +
+                "LEFT JOIN likes AS l ON film.film_id = l.film_id " +
+                "RIGHT JOIN film_genre AS fg ON film.film_id = fg.film_id " +
+                "WHERE fg.genre_id = ? " +
+                "GROUP BY film.film_id";
+        log.info("Отправлен топ фильмов с идентификатором жанра {}", genreId);
+        return jdbcTemplate.query(sql, filmMapper, genreId);
+    }
+
+    @Override
+    public List<Film> getListTopFilmsByGenreAndYear(Integer year, Integer genreId) {
+        String sql = "SELECT film.*, " +
+                "COUNT(l.film_id) as count_likes," +
+                "FROM film " +
+                "LEFT JOIN likes AS l ON film.film_id = l.film_id " +
+                "RIGHT JOIN film_genre AS fg ON film.film_id = fg.film_id " +
+                "WHERE EXTRACT(YEAR FROM film.release_date) = ? " +
+                "AND fg.genre_id = ? " +
+                "GROUP BY film.film_id";
+        log.info("Отправлен топ фильмов {} года с идентификатором жанра {}", year, genreId);
+        return jdbcTemplate.query(sql, filmMapper, year, genreId);
     }
 
     @Override
@@ -220,13 +275,13 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM film " +
                 "LEFT JOIN likes USING (film_id)" +
                 "WHERE film.film_id IN ( " +
-                    "SELECT likes.film_id " +
-                    "FROM likes " +
-                    "WHERE likes.user_id = ? " +
-                    "INTERSECT " +
-                    "SELECT likes.film_id " +
-                    "FROM likes " +
-                    "WHERE likes.user_id = ?) " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ? " +
+                "INTERSECT " +
+                "SELECT likes.film_id " +
+                "FROM likes " +
+                "WHERE likes.user_id = ?) " +
                 "GROUP BY film.film_id " +
                 "ORDER BY COUNT(likes.film_id) DESC;";
 
@@ -276,5 +331,14 @@ public class FilmDbStorage implements FilmStorage {
             fields.put("RATING_ID", film.getMpa().getId());
         }
         return fields;
+    }
+
+    private void addFeed(int userId, int operationId, int entityId) {
+        String sql = "INSERT INTO feed (user_id, event_type_id, type_operation_id, entity_id) " +
+                "VALUES (?, 1, ?, ?)";
+        int updatedRowCount = jdbcTemplate.update(sql, userId, operationId, entityId);
+        if (updatedRowCount == 0) {
+            throw new NotFoundException("Произошла ошибка при добавлении действия в ленту событий");
+        }
     }
 }
