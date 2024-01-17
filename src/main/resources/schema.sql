@@ -130,5 +130,3 @@ ALTER TABLE film_genre
     ADD CONSTRAINT key_film_genre PRIMARY KEY (genre_id, film_id);
 ALTER TABLE friends
     ADD CONSTRAINT key_friends PRIMARY KEY (user_id, friend_id);
-ALTER TABLE likes
-    ADD CONSTRAINT key_likes PRIMARY KEY (user_id, film_id);

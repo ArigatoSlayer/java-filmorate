@@ -41,3 +41,4 @@ public interface FilmStorage {
 
     List<Film> getListCommonFilms(Integer userId, Integer friendId);
 }
+
