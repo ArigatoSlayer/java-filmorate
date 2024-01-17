@@ -28,5 +28,4 @@ public interface UserStorage {
     void deleteUser(int id);
 
     List<Feed> getFeedById(int id);
-
 }

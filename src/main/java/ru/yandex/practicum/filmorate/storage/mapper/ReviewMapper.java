@@ -21,5 +21,4 @@ public class ReviewMapper implements RowMapper<Review> {
                 .useful(rs.getInt("useful"))
                 .build();
     }
-
 }
