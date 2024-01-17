@@ -9,7 +9,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
 
 import java.sql.Date;
@@ -23,6 +25,7 @@ import java.util.List;
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
     private final UserMapper userMapper;
+    private final FilmMapper filmMapper;
 
 
     @Override
@@ -133,6 +136,24 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, userMapper, userId, secondUserId);
     }
 
+    @Override
+    public List<Film> getRecommendation(int id) {
+        isExist(id);
+        log.info("поступил запрос на создание рекомендаций от пользователя = {}", id);
+        String sqlQuery = "SELECT *\n" +
+                "FROM FILM\n" +
+                "where FILM_ID in (SELECT l1.FILM_ID\n" +
+                "                  FROM LIKES AS l1\n" +
+                "                           RIGHT JOIN LIKES AS l2 ON l1.FILM_ID = l2.FILM_ID\n" +
+                "                  WHERE (l1.USER_ID <> ?)\n" +
+                "                    AND l1.FILM_ID NOT IN (\n" +
+                "                      SELECT FILM_ID\n" +
+                "                      FROM LIKES\n" +
+                "                      WHERE USER_ID = ?\n" +
+                "                      ))";
+        return jdbcTemplate.query(sqlQuery, filmMapper, id, id);
+    }
+
     private void isExist(Integer userId) {
         final String checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
@@ -142,6 +163,4 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Пользователь с идентификатором " + userId + " не найден.");
         }
     }
-
-
 }
