@@ -19,7 +19,15 @@ public interface FilmStorage {
 
     void deleteFilm(int id);
 
-    List<Film> getListOfTopFilms(int count);
+    List<Film> getListOfTopFilms();
+
+    List<Film> getListTopFilmsByCount(Integer count);
+
+    List<Film> getListTopFilmsByYear(Integer year);
+
+    List<Film> getListOfTopFilmsByGenre(Integer genreId);
+
+    List<Film> getListTopFilmsByGenreAndYear(Integer year, Integer genreId);
 
     List<Film> getAllDirectorFilmsOrderByLikes(int directorId);
 
