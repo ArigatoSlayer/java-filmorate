@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
@@ -73,8 +74,38 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> topFilms(int count) {
-        return directorStorage.setDirectorsToFilmList(filmStorage.getListOfTopFilms(count));
+    public List<Film> getMostPopularsFilms(Integer count, Integer genreId, Integer year) {
+        List<Film> popularsFilms;
+        if (genreId != null && year != null) {
+            popularsFilms = filmStorage.getListTopFilmsByGenreAndYear(year, genreId);
+        } else if (count != null) {
+            popularsFilms = filmStorage.getListTopFilmsByCount(count);
+        } else if (year != null) {
+            popularsFilms = filmStorage.getListTopFilmsByYear(year);
+        } else if (genreId != null) {
+            popularsFilms = filmStorage.getListOfTopFilmsByGenre(genreId);
+        } else {
+            popularsFilms = filmStorage.getListOfTopFilms();
+        }
+        return directorStorage.setDirectorsToFilmList(popularsFilms);
+    }
+
+    public List<Film> searchBySubstring(String str, List<String> by) {
+        List<Film> films;
+        if (by.size() == 2) {
+            films = filmStorage.searchBySubstring(str);
+        } else if (by.size() == 1 && by.contains("title")) {
+            films = filmStorage.searchBySubstringByFilms(str);
+        } else if (by.size() == 1 && by.contains("director")) {
+            films = filmStorage.searchBySubstringByDirectors(str);
+        } else {
+            throw new NotFoundException("Фильмы с подстрокой " + str + " не найдены");
+        }
+        return directorStorage.setDirectorsToFilmList(films);
+    }
+
+    public void deleteFilm(int id) {
+        filmStorage.deleteFilm(id);
     }
 
     private boolean isValidFilm(Film film) {
@@ -82,11 +113,11 @@ public class FilmService {
         if (film.getName().isEmpty()) {
             throw new ValidationException("Название не может быть пустым");
         } else if (film.getDescription().length() > maxChar) {
-            throw new ValidationException("максимальная длина описания — " + maxChar + " символов");
+            throw new ValidationException("Максимальная длина описания — " + maxChar + " символов");
         } else if (film.getReleaseDate().isBefore(dateStart)) {
-            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
         } else if (film.getDuration() <= 0) {
-            throw new ValidationException("продолжительность фильма должна быть положительной");
+            throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
         return true;
     }

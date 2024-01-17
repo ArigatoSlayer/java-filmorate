@@ -1,9 +1,13 @@
+
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -55,4 +59,20 @@ public class UserController {
     public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
         service.deleteFriend(id, friendId);
     }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendationFilm(@PathVariable int id) {
+        return service.getRecommendation(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable int id) {
+        service.deleteUser(id);
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<Feed> getFeedById(@PathVariable int id) {
+        return service.getFeedById(id);
+    }
+
 }
