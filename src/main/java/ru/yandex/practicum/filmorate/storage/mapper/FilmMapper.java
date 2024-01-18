@@ -37,7 +37,6 @@ public class FilmMapper implements RowMapper<Film> {
                 .duration(rs.getInt("duration"))
                 .mpa(findMpa(rs.getInt("rating_id")))
                 .genres(findGenres(rs.getInt("film_id")))
-                .likes(new HashSet<>())
                 .directors(new HashSet<>())
                 .build();
     }

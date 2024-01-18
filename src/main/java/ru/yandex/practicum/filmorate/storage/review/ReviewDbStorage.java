@@ -81,10 +81,8 @@ public class ReviewDbStorage implements ReviewStorage {
         if (updatedRowCount == 0) {
             throw new NotFoundException("Введены неверные данные при обновлении отзыва.");
         }
-
         int reviewId = review.getReviewId();
         log.info("Обновлен отзыв с индентификатором {}.", reviewId);
-
         Integer userId = getUserId(reviewId);
         addFeed(userId, 3, reviewId);
         return getReviewById(reviewId);
@@ -184,11 +182,7 @@ public class ReviewDbStorage implements ReviewStorage {
         map.put("is_positive", review.getIsPositive());
         map.put("user_id", review.getUserId());
         map.put("film_id", review.getFilmId());
-        if (null == review.getUseful()) {
-            map.put("useful", 0);
-        } else {
-            map.put("useful", review.getUseful());
-        }
+        map.put("useful", 0);
         return map;
     }
 

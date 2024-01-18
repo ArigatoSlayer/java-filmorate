@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Service
@@ -30,7 +31,7 @@ public class ReviewService {
         }
     }
 
-    public Review postReview(Review review) {
+    public Review postReview(@Valid Review review) {
         filmStorage.getFilmById(review.getFilmId());
         userStorage.getUserById(review.getUserId());
         return reviewStorage.postReview(review);

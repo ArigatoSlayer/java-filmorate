@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Validated
@@ -23,8 +25,8 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews")
-    public List<Review> getAllReviews(@RequestParam(required = false, defaultValue = "0") Integer filmId,
-                                      @RequestParam(required = false, defaultValue = "10") Integer count) {
+    public List<Review> getAllReviews(@RequestParam(defaultValue = "0") @PositiveOrZero Integer filmId,
+                                      @RequestParam(defaultValue = "10") @Positive Integer count) {
         return reviewService.getAllReviews(filmId, count);
     }
 

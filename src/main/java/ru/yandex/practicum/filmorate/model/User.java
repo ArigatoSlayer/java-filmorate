@@ -18,14 +18,14 @@ public class User {
     @NotBlank
     private String email;
 
-    @NotBlank
-    @Pattern(regexp = "^\\S+$", message = "Login field should be without whitespaces!")
+    @NotBlank(message = "Логин не может быть пустым.")
+    @Pattern(regexp = "^\\S+$", message = "Логин не может содержать пробелов.")
     private String login;
 
     private String name;
 
     @NotNull
-    @PastOrPresent(message = "Birthday field must contain a past date!")
+    @PastOrPresent(message = "Дата рождения не должна быть в прошлом.")
     private LocalDate birthday;
 
     private Set<Integer> friends = new HashSet<>();

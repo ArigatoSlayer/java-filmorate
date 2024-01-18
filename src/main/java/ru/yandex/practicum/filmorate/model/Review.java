@@ -14,15 +14,17 @@ public class Review {
 
     Integer reviewId;
 
-    @NotBlank
-    @Size(max = 200)
+    @NotBlank(message = "Отзыв должен содержать контент.")
+    @Size(max = 200, message = "Контент отзыва дожен быть не более 200 символов.")
     private String content;
 
-    @NotNull
+    @NotNull(message = "Отзыв должен содержать оценку.")
     private Boolean isPositive;
 
+    @NotNull(message = "Отзыв должен содержать идентификатоор пользователя.")
     private Integer userId;
 
+    @NotNull(message = "Отзыв должен содержать идентификатор фильма.")
     private Integer filmId;
 
     private Integer useful;

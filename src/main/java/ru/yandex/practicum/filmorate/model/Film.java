@@ -22,10 +22,10 @@ public class Film {
     private String name;
 
     @NotNull
-    @Size(max = 200, message = "Description field must be less 200 characters!")
+    @Size(max = 200, message = "Описание фильма должно не более 200 символов.")
     private String description;
 
-    @ReleaseDateValidation(message = "Release date is before 28.12.1895!")
+    @ReleaseDateValidation(message = "Дата выхода фильма должна быть не ранее 28.12.1895.")
     private LocalDate releaseDate;
 
     @NotNull
@@ -34,7 +34,6 @@ public class Film {
 
     private Mpa mpa;
     private List<Genre> genres;
-    private Set<Integer> likes = new HashSet<>();
     private Set<Director> directors;
 
     public void addDirectorToDirectorsSet(Director director) {
