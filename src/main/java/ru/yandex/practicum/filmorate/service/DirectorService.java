@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
@@ -23,12 +22,10 @@ public class DirectorService {
     }
 
     public Director postDirector(Director director) {
-        directorNameCheck(director);
         return directorStorage.postDirector(director);
     }
 
     public Director putDirector(Director director) {
-        directorNameCheck(director);
         return directorStorage.putDirector(director);
     }
 
@@ -36,9 +33,4 @@ public class DirectorService {
         directorStorage.deleteDirectorById(directorId);
     }
 
-    private void directorNameCheck(Director director) {
-        if (director.getName().equals(" ")) {
-            throw new ValidationException("Имя режиссера пустое.");
-        }
-    }
 }

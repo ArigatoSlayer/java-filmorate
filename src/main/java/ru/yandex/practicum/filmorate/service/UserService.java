@@ -25,16 +25,10 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        if (!isValidUser(user)) {
-            throw new RuntimeException("Введены неверные параметры");
-        }
         return storage.createUser(user);
     }
 
     public User updateUser(User user) {
-        if (!isValidUser(user)) {
-            throw new RuntimeException("Введены неверные параметры");
-        }
         return storage.updateUser(user);
     }
 
@@ -66,19 +60,8 @@ public class UserService {
         return storage.getFeedById(id);
     }
 
-    private boolean isValidUser(User user) {
-        if (user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
-            throw new ValidationException("Email пустой или не содержит: @");
-        } else if (user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин пустой или содержит пробел");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения установлена в будущем");
-        }
-        return true;
-    }
-
     public List<Film> getRecommendation(int id) {
         return storage.getRecommendation(id);
     }
-}
 
+}

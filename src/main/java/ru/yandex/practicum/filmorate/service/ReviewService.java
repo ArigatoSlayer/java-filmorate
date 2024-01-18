@@ -32,7 +32,6 @@ public class ReviewService {
     }
 
     public Review postReview(Review review) {
-        validateReview(review);
         filmStorage.getFilmById(review.getFilmId());
         userStorage.getUserById(review.getUserId());
         return reviewStorage.postReview(review);
@@ -60,21 +59,6 @@ public class ReviewService {
 
     public void deleteReviewById(Integer reviewId) {
         reviewStorage.deleteReviewById(reviewId);
-    }
-
-    private void validateReview(Review review) {
-        if (review.getContent() == null || review.getContent().isBlank()) {
-            throw new ValidationException("Отзыв должен содержать контент.");
-        }
-        if (review.getIsPositive() == null) {
-            throw new ValidationException("Отзыв должен содержать тип.");
-        }
-        if (review.getUserId() == null) {
-            throw new ValidationException("Отзыв должен содержать идентификатор пользователя.");
-        }
-        if (review.getFilmId() == null) {
-            throw new ValidationException("Отзыв должен содержать идентификатор фильма.");
-        }
     }
 
 }

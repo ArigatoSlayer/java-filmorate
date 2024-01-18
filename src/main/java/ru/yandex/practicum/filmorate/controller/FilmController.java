@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -70,6 +71,6 @@ public class FilmController {
 
     @GetMapping("/director/{directorId}")
     public List<Film> getAllDirectorFilms(@PathVariable int directorId, @RequestParam String sortBy) {
-        return service.getAllDirectorFilms(directorId, sortBy);
+        return service.getAllDirectorFilms(directorId, DirectorSortBy.valueOf(sortBy));
     }
 }

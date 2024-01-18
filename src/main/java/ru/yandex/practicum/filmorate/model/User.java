@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
+import javax.validation.constraints.*;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -16,15 +15,21 @@ import java.util.Set;
 public class User {
 
     private Integer id;
+
     @Email
-    @NonNull
-    private String email;
-    @NonNull
     @NotBlank
+    private String email;
+
+    @NotBlank
+    @Pattern(regexp = "^\\S+$", message = "Login field should be without whitespaces!")
     private String login;
+
     private String name;
-    @Past
+
+    @NotNull
+    @PastOrPresent(message = "Birthday field must contain a past date!")
     private LocalDate birthday;
+
     private Set<Integer> friends = new HashSet<>();
 
 }

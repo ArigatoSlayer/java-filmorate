@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -15,16 +16,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmService {
 
-    private final LocalDate dateStart = LocalDate.of(1895, 12, 28);
-    private final int maxChar = 200;
-
     private final FilmStorage filmStorage;
     private final DirectorStorage directorStorage;
 
     public Film updateFilm(Film film) {
-        if (!isValidFilm(film)) {
-            throw new RuntimeException("Введены неверные данные");
-        }
         directorStorage.setFilmDirectorsToDb(film.getId(), film.getDirectors());
         Film resultFilm = filmStorage.updateFilm(film);
         resultFilm.setDirectors(directorStorage.getFilmDirectorsFromDb(film.getId()));
@@ -32,9 +27,6 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) {
-        if (!isValidFilm(film)) {
-            throw new RuntimeException("Введены неверные данные");
-        }
         Film resultFilm = filmStorage.createFilm(film);
         directorStorage.setFilmDirectorsToDb(resultFilm.getId(), film.getDirectors());
         resultFilm.setDirectors(directorStorage.getFilmDirectorsFromDb(film.getId()));
@@ -51,15 +43,15 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> getAllDirectorFilms(int directorId, String sortBy) {
+    public List<Film> getAllDirectorFilms(int directorId, DirectorSortBy directorSortBy) {
         directorStorage.getDirectorById(directorId);
-        if ("likes".equals(sortBy)) {
+        if (directorSortBy == DirectorSortBy.likes) {
             return directorStorage.setDirectorsToFilmList(filmStorage.getAllDirectorFilmsOrderByLikes(directorId));
         }
-        if ("year".equals(sortBy)) {
+        if (directorSortBy == DirectorSortBy.year) {
             return directorStorage.setDirectorsToFilmList(filmStorage.getAllDirectorFilmsOrderByYear(directorId));
         }
-        throw new RuntimeException("Введены неверные данные");
+        throw new RuntimeException("Введены неверные данные.");
     }
 
     public Film putLike(int filmId, int userId) {
@@ -108,22 +100,9 @@ public class FilmService {
         filmStorage.deleteFilm(id);
     }
 
-    private boolean isValidFilm(Film film) {
-        film.setName(film.getName().trim());
-        if (film.getName().isEmpty()) {
-            throw new ValidationException("Название не может быть пустым");
-        } else if (film.getDescription().length() > maxChar) {
-            throw new ValidationException("Максимальная длина описания — " + maxChar + " символов");
-        } else if (film.getReleaseDate().isBefore(dateStart)) {
-            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-        } else if (film.getDuration() <= 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительной");
-        }
-        return true;
-    }
-
     public List<Film> getListCommonFilms(Integer userId, Integer friendId) {
         return filmStorage.getListCommonFilms(userId, friendId);
 
     }
+
 }

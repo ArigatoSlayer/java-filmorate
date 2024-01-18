@@ -1,11 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.*;
+
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.validation.ReleaseDateValidation;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -18,14 +17,21 @@ import java.util.Set;
 public class Film {
 
     private int id;
+
     @NotBlank
     private String name;
-    @Size(max = 200)
+
+    @NotNull
+    @Size(max = 200, message = "Description field must be less 200 characters!")
     private String description;
-    @Past
+
+    @ReleaseDateValidation(message = "Release date is before 28.12.1895!")
     private LocalDate releaseDate;
+
+    @NotNull
     @Positive
     private int duration;
+
     private Mpa mpa;
     private List<Genre> genres;
     private Set<Integer> likes = new HashSet<>();

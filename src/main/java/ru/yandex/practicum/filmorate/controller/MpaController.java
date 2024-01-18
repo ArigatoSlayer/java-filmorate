@@ -14,8 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/mpa")
 public class MpaController {
-    private final MpaService service;
 
+    private final MpaService service;
 
     @GetMapping
     public List<Mpa> findAll() {

@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,19 +15,16 @@ public class Review {
     Integer reviewId;
 
     @NotBlank
-    @NotNull
-    String content;
+    @Size(max = 200)
+    private String content;
 
     @NotNull
-    Boolean isPositive;
+    private Boolean isPositive;
 
-    @NotNull
-    Integer userId;
+    private Integer userId;
 
-    @NotNull
-    Integer filmId;
+    private Integer filmId;
 
-    @NotNull
-    Integer useful;
+    private Integer useful;
 
 }

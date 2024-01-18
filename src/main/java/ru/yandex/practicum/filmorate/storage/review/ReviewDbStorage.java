@@ -62,9 +62,6 @@ public class ReviewDbStorage implements ReviewStorage {
                 .usingGeneratedKeyColumns("review_id")
                 .executeAndReturnKey(reviewToMap(review));
         review.setReviewId((int) returnedKey);
-        if (null == review.getUseful()) {
-            review.setUseful(0);
-        }
         Integer userId = getUserId((int) returnedKey);
         log.info("Создан отзыв с индентификатором {}.", review.getReviewId());
         addFeed(userId, 2, review.getReviewId());

@@ -10,6 +10,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GenreService {
+
     private final GenreStorage storage;
 
     public List<Genre> findAll() {
@@ -19,4 +20,5 @@ public class GenreService {
     public Genre getById(Integer id) {
         return storage.getById(id);
     }
+
 }

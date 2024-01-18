@@ -110,7 +110,7 @@ public class FilmDbStorage implements FilmStorage {
     public Film addLike(int filmId, int userId) {
         validateFilm(filmId);
         validateUser(userId);
-        final String sqlQuery = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
+        final String sqlQuery = "INSERT INTO LIKES (film_id, user_id) VALUES (?, ?)";
 
         jdbcTemplate.update(sqlQuery, filmId, userId);
 
@@ -123,7 +123,7 @@ public class FilmDbStorage implements FilmStorage {
     public Film deleteLike(int filmId, int userId) {
         validateFilm(filmId);
         validateUser(userId);
-        final String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+        final String sqlQuery = "DELETE FROM LIKES WHERE film_id = ? AND user_id = ?";
 
         jdbcTemplate.update(sqlQuery, filmId, userId);
 
@@ -145,7 +145,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getListOfTopFilms() {
         String sqlQuery = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
-                "LEFT JOIN likes AS l ON film.film_id=l.film_id " +
+                "LEFT JOIN LIKES AS l ON film.film_id=l.film_id " +
                 "GROUP BY film.film_id " +
                 "ORDER BY count DESC";
         log.info("Отправлен топ фильмов");
@@ -155,7 +155,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getListTopFilmsByCount(Integer count) {
         String sqlQuery = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
-                "LEFT JOIN likes AS l ON film.film_id=l.film_id " +
+                "LEFT JOIN LIKES AS l ON film.film_id=l.film_id " +
                 "GROUP BY film.film_id " +
                 "ORDER BY count DESC " +
                 "LIMIT ?";
@@ -166,7 +166,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getListTopFilmsByYear(Integer year) {
         String sql = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
-                "LEFT JOIN likes AS l ON film.film_id=l.film_id " +
+                "LEFT JOIN LIKES AS l ON film.film_id=l.film_id " +
                 "WHERE EXTRACT(YEAR FROM release_date) = ? " +
                 "GROUP BY film.film_id";
         log.info("Отправлен топ фильмов {} года", year);
@@ -176,7 +176,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getListOfTopFilmsByGenre(Integer genreId) {
         String sql = "SELECT film.*, COUNT(l.film_id) AS count FROM film " +
-                "LEFT JOIN likes AS l ON film.film_id = l.film_id " +
+                "LEFT JOIN LIKES AS l ON film.film_id = l.film_id " +
                 "RIGHT JOIN film_genre AS fg ON film.film_id = fg.film_id " +
                 "WHERE fg.genre_id = ? " +
                 "GROUP BY film.film_id";
@@ -189,7 +189,7 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT film.*, " +
                 "COUNT(l.film_id) as count_likes," +
                 "FROM film " +
-                "LEFT JOIN likes AS l ON film.film_id = l.film_id " +
+                "LEFT JOIN LIKES AS l ON film.film_id = l.film_id " +
                 "RIGHT JOIN film_genre AS fg ON film.film_id = fg.film_id " +
                 "WHERE EXTRACT(YEAR FROM film.release_date) = ? " +
                 "AND fg.genre_id = ? " +
@@ -200,13 +200,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllDirectorFilmsOrderByLikes(int directorId) {
-        String sqlQuery = "SELECT film.*, COUNT(likes.film_id) " +
+        String sqlQuery = "SELECT film.*, COUNT(LIKES.film_id) " +
                 "FROM film " +
                 "INNER JOIN film_directors USING (film_id) " +
-                "LEFT JOIN likes USING (film_id) " +
+                "LEFT JOIN LIKES USING (film_id) " +
                 "WHERE film_directors.director_id = ? " +
                 "GROUP BY film.film_id " +
-                "ORDER BY COUNT(likes.film_id) DESC;";
+                "ORDER BY COUNT(LIKES.film_id) DESC;";
         return jdbcTemplate.query(sqlQuery, filmMapper, directorId);
     }
 
@@ -224,7 +224,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> searchBySubstring(String str) {
         String sql = "SELECT film.*, " +
                 "(SELECT COUNT(l.film_id) " +
-                "FROM likes AS l " +
+                "FROM LIKES AS l " +
                 "WHERE film.film_id = l.film_id) as count " +
                 "FROM film " +
                 "LEFT JOIN film_directors AS fd ON fd.film_id = film.film_id " +
@@ -241,7 +241,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> searchBySubstringByDirectors(String str) {
         String sql = "SELECT film.*, " +
                 "(SELECT COUNT(l.film_id) " +
-                "FROM likes AS l " +
+                "FROM LIKES AS l " +
                 "WHERE film.film_id = l.film_id) as count " +
                 "FROM film " +
                 "JOIN film_directors AS fd ON fd.film_id = film.film_id " +
@@ -257,7 +257,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> searchBySubstringByFilms(String str) {
         String sql = "SELECT f.*, " +
                 "(SELECT COUNT(l.film_id) " +
-                "FROM likes AS l " +
+                "FROM LIKES AS l " +
                 "WHERE f.film_id = l.film_id) as count " +
                 "FROM film as f " +
                 "WHERE LOWER(f.name) LIKE (?) " +
@@ -271,19 +271,19 @@ public class FilmDbStorage implements FilmStorage {
         validateUser(userId);
         validateUser(friendId);
 
-        String sqlQuery = "SELECT film.*, COUNT(likes.film_id) " +
+        String sqlQuery = "SELECT film.*, COUNT(LIKES.film_id) " +
                 "FROM film " +
-                "LEFT JOIN likes USING (film_id)" +
+                "LEFT JOIN LIKES USING (film_id)" +
                 "WHERE film.film_id IN ( " +
-                "SELECT likes.film_id " +
-                "FROM likes " +
-                "WHERE likes.user_id = ? " +
+                "SELECT LIKES.film_id " +
+                "FROM LIKES " +
+                "WHERE LIKES.user_id = ? " +
                 "INTERSECT " +
-                "SELECT likes.film_id " +
-                "FROM likes " +
-                "WHERE likes.user_id = ?) " +
+                "SELECT LIKES.film_id " +
+                "FROM LIKES " +
+                "WHERE LIKES.user_id = ?) " +
                 "GROUP BY film.film_id " +
-                "ORDER BY COUNT(likes.film_id) DESC;";
+                "ORDER BY COUNT(LIKES.film_id) DESC;";
 
         log.info("Отправлен список общих фильмов.");
 
@@ -291,7 +291,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public Set<Integer> getLikesForCurrentFilm(int filmId) {
-        final String sqlQuery = "SELECT user_id FROM likes WHERE film_id = ?";
+        final String sqlQuery = "SELECT user_id FROM LIKES WHERE film_id = ?";
         SqlRowSet likesRows = jdbcTemplate.queryForRowSet(sqlQuery, filmId);
         Set<Integer> likes = new HashSet<>();
         while (likesRows.next()) {
