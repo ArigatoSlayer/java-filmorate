@@ -62,9 +62,8 @@ public class ReviewDbStorage implements ReviewStorage {
                 .usingGeneratedKeyColumns("review_id")
                 .executeAndReturnKey(reviewToMap(review));
         review.setReviewId((int) returnedKey);
-        Integer userId = getUserId((int) returnedKey);
         log.info("Создан отзыв с индентификатором {}.", review.getReviewId());
-        addFeed(userId, 2, review.getReviewId());
+
         return review;
     }
 
@@ -83,8 +82,7 @@ public class ReviewDbStorage implements ReviewStorage {
         }
         int reviewId = review.getReviewId();
         log.info("Обновлен отзыв с индентификатором {}.", reviewId);
-        Integer userId = getUserId(reviewId);
-        addFeed(userId, 3, reviewId);
+
         return getReviewById(reviewId);
     }
 
@@ -184,20 +182,5 @@ public class ReviewDbStorage implements ReviewStorage {
         map.put("film_id", review.getFilmId());
         map.put("useful", 0);
         return map;
-    }
-
-    private void addFeed(int userId, int operationId, int entityId) {
-        String sql = "INSERT INTO feed (user_id, event_type_id, type_operation_id, entity_id) " +
-                "VALUES (?, 2, ?, ?)";
-        int updatedRowCount = jdbcTemplate.update(sql, userId, operationId, entityId);
-        if (updatedRowCount == 0) {
-            throw new NotFoundException("Произошла ошибка при добавлении действия в ленту событий");
-        }
-    }
-
-    private Integer getUserId(int reviewId) {
-        String sql = "SELECT user_id FROM reviews " +
-                "WHERE review_id = ?;";
-        return jdbcTemplate.queryForObject(sql, Integer.class, reviewId);
     }
 }

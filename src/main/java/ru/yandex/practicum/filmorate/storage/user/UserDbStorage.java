@@ -100,7 +100,6 @@ public class UserDbStorage implements UserStorage {
             jdbcTemplate.update(sqlQuery, friendId, userId, true);
             log.info("Пользователь {} добавил в друзья {}", userId, friendId);
         }
-        addFeed(userId, 2, friendId);
         return getUserById(userId);
     }
 
@@ -110,7 +109,6 @@ public class UserDbStorage implements UserStorage {
 
         jdbcTemplate.update(sqlQuery, userId, friendId);
         log.info("Пользователь {} удалил из друзей {}", userId, friendId);
-        addFeed(userId, 1, friendId);
     }
 
     @Override
@@ -192,15 +190,6 @@ public class UserDbStorage implements UserStorage {
         if (!userRows.next()) {
             log.warn("Пользователь с идентификатором {} не найден.", userId);
             throw new NotFoundException("Пользователь с идентификатором " + userId + " не найден.");
-        }
-    }
-
-    private void addFeed(int userId, int operationId, int entityId) {
-        String sql = "INSERT INTO feed (user_id, event_type_id, type_operation_id, entity_id) " +
-                "VALUES (?, 3, ?, ?)";
-        int updatedRowCount = jdbcTemplate.update(sql, userId, operationId, entityId);
-        if (updatedRowCount == 0) {
-            throw new NotFoundException("Произошла ошибка при добавлении действия в ленту событий");
         }
     }
 

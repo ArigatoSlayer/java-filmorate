@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final DirectorStorage directorStorage;
+    private final FeedStorage feedStorage;
 
     public Film updateFilm(Film film) {
         directorStorage.setFilmDirectorsToDb(film.getId(), film.getDirectors());
@@ -55,12 +57,14 @@ public class FilmService {
     public Film putLike(int filmId, int userId) {
         Film film = filmStorage.addLike(filmId, userId);
         film.setDirectors(directorStorage.getFilmDirectorsFromDb(filmId));
+        feedStorage.addFeed(userId, 1, 2, filmId);
         return film;
     }
 
     public Film deleteLike(int filmId, int userId) {
         Film film = filmStorage.deleteLike(filmId, userId);
         film.setDirectors(directorStorage.getFilmDirectorsFromDb(filmId));
+        feedStorage.addFeed(userId, 1, 1, filmId);
         return film;
     }
 

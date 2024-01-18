@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -17,6 +19,8 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
+    private final JdbcTemplate jdbcTemplate;
 
     public Review getReviewById(Integer reviewId) {
         return reviewStorage.getReviewById(reviewId);
@@ -32,13 +36,20 @@ public class ReviewService {
     }
 
     public Review postReview(@Valid Review review) {
+        Integer userId = review.getUserId();
         filmStorage.getFilmById(review.getFilmId());
-        userStorage.getUserById(review.getUserId());
-        return reviewStorage.postReview(review);
+        userStorage.getUserById(userId);
+        Review reviewUpdate = reviewStorage.postReview(review);
+        feedStorage.addFeed(userId, 2, 2, reviewUpdate.getReviewId());
+        return reviewUpdate;
     }
 
     public Review putReview(Review review) {
-        return reviewStorage.putReview(review);
+        Review reviewUpdate = reviewStorage.putReview(review);
+        int reviewId = reviewUpdate.getReviewId();
+        Integer userId = reviewUpdate.getUserId();
+        feedStorage.addFeed(userId, 2, 3, reviewId);
+        return reviewUpdate;
     }
 
     public void putLikeToReview(Integer reviewId, Integer userId) {
@@ -58,7 +69,15 @@ public class ReviewService {
     }
 
     public void deleteReviewById(Integer reviewId) {
+        Integer userId = getUserId(reviewId);
         reviewStorage.deleteReviewById(reviewId);
+        feedStorage.addFeed(userId, 2, 1, reviewId);
+    }
+
+    private Integer getUserId(int reviewId) {
+        String sql = "SELECT user_id FROM reviews " +
+                "WHERE review_id = ?;";
+        return jdbcTemplate.queryForObject(sql, Integer.class, reviewId);
     }
 
 }
