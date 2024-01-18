@@ -1,11 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
-import javax.validation.constraints.*;
-
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
 
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
