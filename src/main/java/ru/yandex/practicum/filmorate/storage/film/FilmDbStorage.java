@@ -115,7 +115,6 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId, userId);
 
         log.info("Пользователь {} поставил лайк к фильму {}", userId, filmId);
-        addFeed(userId, 2, filmId);
         return getFilmById(filmId);
     }
 
@@ -128,7 +127,6 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId, userId);
 
         log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
-        addFeed(userId, 1, filmId);
         return getFilmById(filmId);
     }
 
@@ -331,14 +329,5 @@ public class FilmDbStorage implements FilmStorage {
             fields.put("RATING_ID", film.getMpa().getId());
         }
         return fields;
-    }
-
-    private void addFeed(int userId, int operationId, int entityId) {
-        String sql = "INSERT INTO feed (user_id, event_type_id, type_operation_id, entity_id) " +
-                "VALUES (?, 1, ?, ?)";
-        int updatedRowCount = jdbcTemplate.update(sql, userId, operationId, entityId);
-        if (updatedRowCount == 0) {
-            throw new NotFoundException("Произошла ошибка при добавлении действия в ленту событий");
-        }
     }
 }

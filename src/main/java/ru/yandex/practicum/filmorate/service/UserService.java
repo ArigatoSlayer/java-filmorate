@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -12,10 +13,12 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage storage;
+    private final FeedStorage feedStorage;
 
     @Autowired
-    public UserService(UserStorage storage) {
+    public UserService(UserStorage storage, FeedStorage feedStorage) {
         this.storage = storage;
+        this.feedStorage = feedStorage;
     }
 
     public List<User> getAllUsers() {
@@ -36,10 +39,12 @@ public class UserService {
 
     public void addToFriend(int userId, int friendId) {
         storage.addFriend(userId, friendId);
+        feedStorage.addFeed(userId, 3, 2, friendId);
     }
 
     public void deleteFriend(int userId, int friendId) {
         storage.deleteFriend(userId, friendId);
+        feedStorage.addFeed(userId, 3, 1, friendId);
     }
 
     public List<User> getAllFriends(int userId) {

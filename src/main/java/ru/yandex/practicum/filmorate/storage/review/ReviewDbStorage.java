@@ -62,9 +62,8 @@ public class ReviewDbStorage implements ReviewStorage {
                 .usingGeneratedKeyColumns("review_id")
                 .executeAndReturnKey(reviewToMap(review));
         review.setReviewId((int) returnedKey);
-        Integer userId = getUserId((int) returnedKey);
         log.info("Создан отзыв с индентификатором {}.", review.getReviewId());
-        addFeed(userId, 2, review.getReviewId());
+
         return review;
     }
 
@@ -85,8 +84,6 @@ public class ReviewDbStorage implements ReviewStorage {
         int reviewId = review.getReviewId();
         log.info("Обновлен отзыв с индентификатором {}.", reviewId);
 
-        Integer userId = getUserId(reviewId);
-        addFeed(userId, 3, reviewId);
         return getReviewById(reviewId);
     }
 
@@ -146,8 +143,6 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void deleteReviewById(Integer reviewId) {
-        Integer userId = getUserId(reviewId);
-
         final String sqlQuery = "DELETE reviews " +
                 "WHERE review_id = ?;";
         int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId);
@@ -155,7 +150,6 @@ public class ReviewDbStorage implements ReviewStorage {
             throw new NotFoundException("Отзыв с идентификатором " + reviewId + " не найден.");
         }
         log.info("Удален отзыв с индентификатором {}.", reviewId);
-        addFeed(userId, 1, reviewId);
     }
 
     private void incrementUsefulToReview(Integer reviewId, Integer userId) {
@@ -190,20 +184,5 @@ public class ReviewDbStorage implements ReviewStorage {
             map.put("useful", review.getUseful());
         }
         return map;
-    }
-
-    private void addFeed(int userId, int operationId, int entityId) {
-        String sql = "INSERT INTO feed (user_id, event_type_id, type_operation_id, entity_id) " +
-                "VALUES (?, 2, ?, ?)";
-        int updatedRowCount = jdbcTemplate.update(sql, userId, operationId, entityId);
-        if (updatedRowCount == 0) {
-            throw new NotFoundException("Произошла ошибка при добавлении действия в ленту событий");
-        }
-    }
-
-    private Integer getUserId(int reviewId) {
-        String sql = "SELECT user_id FROM reviews " +
-                "WHERE review_id = ?;";
-        return jdbcTemplate.queryForObject(sql, Integer.class, reviewId);
     }
 }
