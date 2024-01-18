@@ -42,7 +42,6 @@ class FilmControllerTest {
                 .duration(duration)
                 .mpa(Mpa.builder().id(1).name("G").build())
                 .genres(new ArrayList<>())
-                .likes(new LinkedHashSet<>())
                 .build();
     }
 
