@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.ReviewMapper;
 
 import java.util.HashMap;
@@ -21,6 +22,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final ReviewMapper reviewMapper;
+    private final FeedStorage feedStorage;
 
     @Override
     public Review getReviewById(Integer reviewId) {
@@ -142,8 +144,6 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void deleteReviewById(Integer reviewId) {
-        Integer userId = getUserId(reviewId);
-
         final String sqlQuery = "DELETE reviews " +
                 "WHERE review_id = ?;";
         int updatedRowCount = jdbcTemplate.update(sqlQuery, reviewId);
@@ -151,7 +151,6 @@ public class ReviewDbStorage implements ReviewStorage {
             throw new NotFoundException("Отзыв с идентификатором " + reviewId + " не найден.");
         }
         log.info("Удален отзыв с индентификатором {}.", reviewId);
-        addFeed(userId, 1, reviewId);
     }
 
     private void incrementUsefulToReview(Integer reviewId, Integer userId) {
