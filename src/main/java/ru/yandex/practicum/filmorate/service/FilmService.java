@@ -81,14 +81,12 @@ public class FilmService {
         List<Film> popularsFilms;
         if (genreId != null && year != null) {
             popularsFilms = filmStorage.getListTopFilmsByGenreAndYear(year, genreId);
-        } else if (count != null) {
-            popularsFilms = filmStorage.getListTopFilmsByCount(count);
         } else if (year != null) {
             popularsFilms = filmStorage.getListTopFilmsByYear(year);
         } else if (genreId != null) {
             popularsFilms = filmStorage.getListOfTopFilmsByGenre(genreId);
         } else {
-            popularsFilms = filmStorage.getListOfTopFilms();
+            popularsFilms = filmStorage.getListTopFilmsByCount(count);
         }
         return genreStorage.setGenresToFilmList(directorStorage.setDirectorsToFilmList(popularsFilms));
     }

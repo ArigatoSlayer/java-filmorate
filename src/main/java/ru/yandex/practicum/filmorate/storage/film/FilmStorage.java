@@ -19,8 +19,6 @@ public interface FilmStorage {
 
     void deleteFilm(int id);
 
-    List<Film> getListOfTopFilms();
-
     List<Film> getListTopFilmsByCount(Integer count);
 
     List<Film> getListTopFilmsByYear(Integer year);
