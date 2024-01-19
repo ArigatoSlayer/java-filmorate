@@ -10,8 +10,10 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Component
 public class FilmMapper implements RowMapper<Film> {
@@ -49,12 +51,13 @@ public class FilmMapper implements RowMapper<Film> {
         return jdbcTemplate.queryForObject(mpaSql, mpaMapper, ratingId);
     }
 
-    protected List<Genre> findGenres(int filmId) {
+    protected Set<Genre> findGenres(int filmId) {
         final String genreSql = "SELECT genre.genre_id, genre.name " +
                 "FROM genre " +
                 "LEFT JOIN film_genre AS fg ON genre.genre_id = fg.genre_id " +
                 "WHERE film_id = ?";
-
-        return jdbcTemplate.query(genreSql, genreMapper, filmId);
+        TreeSet<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
+        genres.addAll(jdbcTemplate.query(genreSql, genreMapper, filmId));
+        return genres;
     }
 }
