@@ -35,16 +35,16 @@ public class FilmMapper implements RowMapper<Film> {
                 .description(rs.getString("description"))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
-                .mpa(findMpa(rs.getInt("rating_id")))
+                .mpa(findMpa(rs.getInt("mpa_id")))
                 .genres(new TreeSet<>(Comparator.comparing(Genre::getId)))
                 .directors(new HashSet<>())
                 .build();
     }
 
     public Mpa findMpa(int ratingId) {
-        final String mpaSql = "SELECT id, name " +
-                "FROM rating_mpa " +
-                "WHERE id = ?";
+        final String mpaSql = "SELECT * " +
+                "FROM mpa_ratings " +
+                "WHERE mpa_id = ?;";
         return jdbcTemplate.queryForObject(mpaSql, mpaMapper, ratingId);
     }
 

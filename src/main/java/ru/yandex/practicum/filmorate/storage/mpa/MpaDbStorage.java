@@ -20,14 +20,14 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public List<Mpa> findAll() {
-        String sqlQuery = "SELECT * FROM rating_mpa";
+        String sqlQuery = "SELECT * FROM mpa_ratings";
         log.info("Отправлены все рейтинги");
         return jdbcTemplate.query(sqlQuery, mapper);
     }
 
     @Override
     public Mpa getById(int id) {
-        String sqlQuery = "SELECT * FROM rating_mpa WHERE id = ?";
+        String sqlQuery = "SELECT * FROM mpa_ratings WHERE mpa_id = ?";
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
 
         if (!mpaRows.next()) {

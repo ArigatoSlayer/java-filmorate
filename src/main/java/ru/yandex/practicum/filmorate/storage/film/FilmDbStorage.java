@@ -9,7 +9,6 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 
 import java.util.*;
@@ -25,63 +24,39 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        final String sql = "SELECT * FROM film WHERE film_id = ?";
-
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, film.getId());
-
-        if (!filmRows.next()) {
-            log.warn("Фильм с идентификатором {} не найден.", film.getId());
+        String query = "UPDATE film SET " +
+                "name = ?, " +
+                "description = ?, " +
+                "release_date = ?, " +
+                "duration = ?, " +
+                "mpa_id = ? " +
+                "WHERE film_id = ?;";
+        int updatedRowCount = jdbcTemplate.update(query,
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getMpa().getId(),
+                film.getId());
+        if (updatedRowCount == 0) {
             throw new NotFoundException("Фильм с идентификатором " + film.getId() + " не найден.");
         }
-
-        final String sqlQuery = "UPDATE film SET name = ?, description = ?, release_date = ?, duration = ? " +
-                "WHERE film_id = ?";
-
-        if (film.getMpa() != null) {
-            final String updateMpa = "UPDATE film SET rating_id = ? WHERE film_id = ?";
-            jdbcTemplate.update(updateMpa, film.getMpa().getId(), film.getId());
-        }
-
-        if (film.getGenres() != null) {
-            final String deleteGenresQuery = "DELETE FROM film_genre WHERE film_id = ?";
-            final String updateGenresQuery = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
-            final String sqlCheck = "SELECT * FROM film_genre WHERE film_id = ? AND genre_id = ?";
-
-            jdbcTemplate.update(deleteGenresQuery, film.getId());
-            for (Genre g : film.getGenres()) {
-                SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sqlCheck, film.getId(), g.getId());
-                if (!genreRows.next()) {
-                    jdbcTemplate.update(updateGenresQuery, film.getId(), g.getId());
-                }
-            }
-        }
-
-        jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
-                film.getId());
-        log.info("Обновлен фильм с идентификатором {} ", film.getId());
-        return getFilmById(film.getId());
+        return film;
     }
 
     @Override
     public Film createFilm(Film film) {
-        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-        Number key = jdbcInsert.withTableName("film")
-                .usingGeneratedKeyColumns("film_id")
-                .executeAndReturnKey(getFilmFields(film));
-        film.setId(key.intValue());
-
-        if (film.getGenres() != null) {
-            final String updateGenresQuery = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
-            final String sqlCheck = "SELECT * FROM film_genre WHERE film_id = ? AND genre_id = ?";
-            for (Genre g : film.getGenres()) {
-                SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sqlCheck, film.getId(), g.getId());
-                if (!genreRows.next()) {
-                    jdbcTemplate.update(updateGenresQuery, film.getId(), g.getId());
-                }
-            }
-        }
-        log.info("Создан фильм с идентификатором {} ", film.getId());
-        return getFilmById(film.getId());
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("film")
+                .usingGeneratedKeyColumns("film_id");
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("name", film.getName());
+        parameters.put("description", film.getDescription());
+        parameters.put("release_date", film.getReleaseDate());
+        parameters.put("duration", film.getDuration());
+        parameters.put("mpa_id", film.getMpa().getId());
+        film.setId((int) simpleJdbcInsert.executeAndReturnKey(parameters));
+        return film;
     }
 
     @Override
@@ -316,7 +291,7 @@ public class FilmDbStorage implements FilmStorage {
         fields.put("DURATION", film.getDuration());
         fields.put("RELEASE_DATE", film.getReleaseDate());
         if (film.getMpa() != null) {
-            fields.put("RATING_ID", film.getMpa().getId());
+            fields.put("mpa_id", film.getMpa().getId());
         }
         return fields;
     }
