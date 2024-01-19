@@ -12,20 +12,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeSet;
 
 @Component
 public class FilmMapper implements RowMapper<Film> {
     final JdbcTemplate jdbcTemplate;
     final MpaMapper mpaMapper;
-    final GenreMapper genreMapper;
 
     @Autowired
     public FilmMapper(JdbcTemplate jdbcTemplate, MpaMapper mpaMapper, GenreMapper genreMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaMapper = mpaMapper;
-        this.genreMapper = genreMapper;
+
     }
 
 
@@ -38,7 +36,7 @@ public class FilmMapper implements RowMapper<Film> {
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
                 .mpa(findMpa(rs.getInt("rating_id")))
-                .genres(findGenres(rs.getInt("film_id")))
+                .genres(new TreeSet<>(Comparator.comparing(Genre::getId)))
                 .directors(new HashSet<>())
                 .build();
     }
@@ -47,17 +45,7 @@ public class FilmMapper implements RowMapper<Film> {
         final String mpaSql = "SELECT id, name " +
                 "FROM rating_mpa " +
                 "WHERE id = ?";
-
         return jdbcTemplate.queryForObject(mpaSql, mpaMapper, ratingId);
     }
 
-    protected Set<Genre> findGenres(int filmId) {
-        final String genreSql = "SELECT genre.genre_id, genre.name " +
-                "FROM genre " +
-                "LEFT JOIN film_genre AS fg ON genre.genre_id = fg.genre_id " +
-                "WHERE film_id = ?";
-        TreeSet<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
-        genres.addAll(jdbcTemplate.query(genreSql, genreMapper, filmId));
-        return genres;
-    }
 }

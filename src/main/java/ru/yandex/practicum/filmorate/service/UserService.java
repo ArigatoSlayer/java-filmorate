@@ -6,65 +6,69 @@ import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
 @Service
 public class UserService {
-    private final UserStorage storage;
+    private final UserStorage userStorage;
     private final FeedStorage feedStorage;
 
+    private final GenreStorage genreStorage;
+
     @Autowired
-    public UserService(UserStorage storage, FeedStorage feedStorage) {
-        this.storage = storage;
+    public UserService(UserStorage storage, FeedStorage feedStorage, GenreStorage genreStorage) {
+        this.userStorage = storage;
         this.feedStorage = feedStorage;
+        this.genreStorage = genreStorage;
     }
 
     public List<User> getAllUsers() {
-        return storage.getAllUsers();
+        return userStorage.getAllUsers();
     }
 
     public User createUser(User user) {
-        return storage.createUser(user);
+        return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
-        return storage.updateUser(user);
+        return userStorage.updateUser(user);
     }
 
     public User getUserById(Integer id) {
-        return storage.getUserById(id);
+        return userStorage.getUserById(id);
     }
 
     public void addToFriend(int userId, int friendId) {
-        storage.addFriend(userId, friendId);
+        userStorage.addFriend(userId, friendId);
         feedStorage.addFeed(userId, 3, 2, friendId);
     }
 
     public void deleteFriend(int userId, int friendId) {
-        storage.deleteFriend(userId, friendId);
+        userStorage.deleteFriend(userId, friendId);
         feedStorage.addFeed(userId, 3, 1, friendId);
     }
 
     public List<User> getAllFriends(int userId) {
-        return storage.getFriends(userId);
+        return userStorage.getFriends(userId);
     }
 
     public List<User> getMutualFriends(Integer userId, Integer friendId) {
-        return storage.getMutualFriends(userId, friendId);
+        return userStorage.getMutualFriends(userId, friendId);
     }
 
     public void deleteUser(int id) {
-        storage.deleteUser(id);
+        userStorage.deleteUser(id);
     }
 
     public List<Feed> getFeedById(int id) {
-        return storage.getFeedById(id);
+        return userStorage.getFeedById(id);
     }
 
     public List<Film> getRecommendation(int id) {
-        return storage.getRecommendation(id);
+        return genreStorage.setGenresToFilmList(userStorage.getRecommendation(id));
     }
 
 }

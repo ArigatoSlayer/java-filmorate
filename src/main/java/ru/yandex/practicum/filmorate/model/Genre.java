@@ -18,7 +18,7 @@ public class Genre {
     private int id;
 
     @NotNull
-    @Size(max = 100, message = "Слишком длинное название жанра. Максимальное количество символов - 100")
+    @Size(max = 100, message = "Слишком длинное название жанра. Максимальное количество символов - 100.")
     private String name;
 
     @Override

@@ -17,8 +17,8 @@ public class GenreService {
         return storage.findAll();
     }
 
-    public Genre getById(Integer id) {
-        return storage.getById(id);
+    public Genre getGenreById(Integer id) {
+        return storage.getGenreById(id);
     }
 
 }

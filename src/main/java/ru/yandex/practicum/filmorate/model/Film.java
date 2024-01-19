@@ -36,6 +36,10 @@ public class Film {
     private Set<Genre> genres;
     private Set<Director> directors;
 
+    public void addGenreToGenresSet(Genre genre) {
+        this.genres.add(genre);
+    }
+
     public void addDirectorToDirectorsSet(Director director) {
         this.directors.add(director);
     }
