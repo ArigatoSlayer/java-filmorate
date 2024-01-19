@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -43,12 +41,12 @@ public class UserService {
 
     public void addToFriend(int userId, int friendId) {
         userStorage.addFriend(userId, friendId);
-        feedStorage.addFeed(userId, 3, 2, friendId);
+        feedStorage.addFeed(userId, EventType.FRIEND.numInDb, TypeOperation.ADD.numInDb, friendId);
     }
 
     public void deleteFriend(int userId, int friendId) {
         userStorage.deleteFriend(userId, friendId);
-        feedStorage.addFeed(userId, 3, 1, friendId);
+        feedStorage.addFeed(userId, EventType.FRIEND.numInDb, TypeOperation.REMOVE.numInDb, friendId);
     }
 
     public List<User> getAllFriends(int userId) {

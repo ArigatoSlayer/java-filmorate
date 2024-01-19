@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.DirectorSortBy;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.TypeOperation;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -65,7 +67,7 @@ public class FilmService {
         Film film = filmStorage.addLike(filmId, userId);
         film.setDirectors(directorStorage.getFilmDirectorsFromDb(filmId));
         film.setGenres(genreStorage.getFilmGenresFromDb(filmId));
-        feedStorage.addFeed(userId, 1, 2, filmId);
+        feedStorage.addFeed(userId, EventType.LIKE.numInDb, TypeOperation.ADD.numInDb, filmId);
         return film;
     }
 
@@ -73,7 +75,7 @@ public class FilmService {
         Film film = filmStorage.deleteLike(filmId, userId);
         film.setDirectors(directorStorage.getFilmDirectorsFromDb(filmId));
         film.setGenres(genreStorage.getFilmGenresFromDb(filmId));
-        feedStorage.addFeed(userId, 1, 1, filmId);
+        feedStorage.addFeed(userId, EventType.LIKE.numInDb, TypeOperation.REMOVE.numInDb, filmId);
         return film;
     }
 

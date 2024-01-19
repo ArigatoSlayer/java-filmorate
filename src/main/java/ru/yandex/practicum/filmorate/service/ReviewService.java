@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.TypeOperation;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
@@ -40,7 +42,7 @@ public class ReviewService {
         filmStorage.getFilmById(review.getFilmId());
         userStorage.getUserById(userId);
         Review reviewUpdate = reviewStorage.postReview(review);
-        feedStorage.addFeed(userId, 2, 2, reviewUpdate.getReviewId());
+        feedStorage.addFeed(userId, EventType.REVIEW.numInDb, TypeOperation.ADD.numInDb, reviewUpdate.getReviewId());
         return reviewUpdate;
     }
 
@@ -48,7 +50,7 @@ public class ReviewService {
         Review reviewUpdate = reviewStorage.putReview(review);
         int reviewId = reviewUpdate.getReviewId();
         Integer userId = reviewUpdate.getUserId();
-        feedStorage.addFeed(userId, 2, 3, reviewId);
+        feedStorage.addFeed(userId, EventType.REVIEW.numInDb, TypeOperation.UPDATE.numInDb, reviewId);
         return reviewUpdate;
     }
 
@@ -71,7 +73,7 @@ public class ReviewService {
     public void deleteReviewById(Integer reviewId) {
         Integer userId = getUserId(reviewId);
         reviewStorage.deleteReviewById(reviewId);
-        feedStorage.addFeed(userId, 2, 1, reviewId);
+        feedStorage.addFeed(userId, EventType.REVIEW.numInDb, TypeOperation.REMOVE.numInDb, reviewId);
     }
 
     private Integer getUserId(int reviewId) {

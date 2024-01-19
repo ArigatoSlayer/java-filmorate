@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,11 +19,9 @@ public class Feed {
     Integer userId;
 
     @NotBlank
-    @NotNull
     String eventType;
 
     @NotBlank
-    @NotNull
     String operation;
 
     @NotNull
