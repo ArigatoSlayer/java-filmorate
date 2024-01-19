@@ -61,17 +61,20 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilms() {
-        final String sql = "SELECT * FROM film";
+        final String sql = "SELECT film.*, mpa_ratings.mpa_name " +
+                "FROM film " +
+                "INNER JOIN mpa_ratings USING (mpa_id);";
         log.info("Отправлены все фильмы");
         return jdbcTemplate.query(sql, filmMapper);
     }
 
     @Override
     public Film getFilmById(int filmId) {
-        final String sql = "SELECT * FROM film WHERE film_id = ?";
-
+        final String sql = "SELECT film.*, mpa_ratings.mpa_name " +
+                "FROM film " +
+                "INNER JOIN mpa_ratings USING (mpa_id)" +
+                "WHERE film_id = ?;";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, filmId);
-
         if (!filmRows.next()) {
             log.warn("Фильм с идентификатором {} не найден.", filmId);
             throw new NotFoundException("Фильм с идентификатором " + filmId + " не найден.");
@@ -117,8 +120,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getListTopFilmsByCount(Integer count) {
-        String sqlQuery = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
+        String sqlQuery = "SELECT film.*, mpa_ratings.mpa_name, COUNT(l.film_id) as count " +
+                "FROM film " +
                 "LEFT JOIN LIKES AS l ON film.film_id=l.film_id " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "GROUP BY film.film_id " +
                 "ORDER BY count DESC " +
                 "LIMIT ?";
@@ -128,8 +133,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getListTopFilmsByYear(Integer year) {
-        String sql = "SELECT film.*, COUNT(l.film_id) as count FROM film " +
+        String sql = "SELECT film.*, mpa_ratings.mpa_name, COUNT(l.film_id) as count " +
+                "FROM film " +
                 "LEFT JOIN LIKES AS l ON film.film_id=l.film_id " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "WHERE EXTRACT(YEAR FROM release_date) = ? " +
                 "GROUP BY film.film_id";
         log.info("Отправлен топ фильмов {} года", year);
@@ -138,7 +145,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getListOfTopFilmsByGenre(Integer genreId) {
-        String sql = "SELECT film.*, COUNT(l.film_id) AS count FROM film " +
+        String sql = "SELECT film.*, mpa_ratings.mpa_name, COUNT(l.film_id) AS count " +
+                "FROM film " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "LEFT JOIN LIKES AS l ON film.film_id = l.film_id " +
                 "RIGHT JOIN film_genre AS fg ON film.film_id = fg.film_id " +
                 "WHERE fg.genre_id = ? " +
@@ -149,9 +158,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getListTopFilmsByGenreAndYear(Integer year, Integer genreId) {
-        String sql = "SELECT film.*, " +
-                "COUNT(l.film_id) as count_likes," +
+        String sql = "SELECT film.*, mpa_ratings.mpa_name, " +
+                "COUNT(l.film_id) as count_likes " +
                 "FROM film " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "LEFT JOIN LIKES AS l ON film.film_id = l.film_id " +
                 "RIGHT JOIN film_genre AS fg ON film.film_id = fg.film_id " +
                 "WHERE EXTRACT(YEAR FROM film.release_date) = ? " +
@@ -163,10 +173,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllDirectorFilmsOrderByLikes(int directorId) {
-        String sqlQuery = "SELECT film.*, COUNT(LIKES.film_id) " +
+        String sqlQuery = "SELECT film.*, mpa_ratings.mpa_name, COUNT(LIKES.film_id) " +
                 "FROM film " +
                 "INNER JOIN film_directors USING (film_id) " +
                 "LEFT JOIN LIKES USING (film_id) " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "WHERE film_directors.director_id = ? " +
                 "GROUP BY film.film_id " +
                 "ORDER BY COUNT(LIKES.film_id) DESC;";
@@ -175,9 +186,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllDirectorFilmsOrderByYear(int directorId) {
-        String sqlQuery = "SELECT * " +
+        String sqlQuery = "SELECT film.*, mpa_ratings.mpa_name " +
                 "FROM film " +
                 "INNER JOIN film_directors USING (film_id) " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "WHERE director_id = ? " +
                 "ORDER BY release_date;";
         return jdbcTemplate.query(sqlQuery, filmMapper, directorId);
@@ -185,13 +197,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchBySubstring(String str) {
-        String sql = "SELECT film.*, " +
+        String sql = "SELECT film.*, mpa_ratings.mpa_name, " +
                 "(SELECT COUNT(l.film_id) " +
                 "FROM LIKES AS l " +
                 "WHERE film.film_id = l.film_id) as count " +
                 "FROM film " +
                 "LEFT JOIN film_directors AS fd ON fd.film_id = film.film_id " +
                 "LEFT JOIN directors AS d ON d.director_id = fd.director_id " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "WHERE LOWER(film.name) LIKE (?) OR LOWER(d.name) LIKE (?) " +
                 "ORDER BY count DESC";
         String searchStr = "%" + str.toLowerCase() + "%";
@@ -202,13 +215,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchBySubstringByDirectors(String str) {
-        String sql = "SELECT film.*, " +
+        String sql = "SELECT film.*, mpa_ratings.mpa_name, " +
                 "(SELECT COUNT(l.film_id) " +
                 "FROM LIKES AS l " +
                 "WHERE film.film_id = l.film_id) as count " +
                 "FROM film " +
                 "JOIN film_directors AS fd ON fd.film_id = film.film_id " +
                 "JOIN directors AS d ON d.director_id = fd.director_id " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "WHERE LOWER(d.name) LIKE (?) " +
                 "ORDER BY count DESC";
         String searchStr = "%" + str.toLowerCase() + "%";
@@ -218,11 +232,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchBySubstringByFilms(String str) {
-        String sql = "SELECT f.*, " +
+        String sql = "SELECT f.*, mpa_ratings.mpa_name, " +
                 "(SELECT COUNT(l.film_id) " +
                 "FROM LIKES AS l " +
                 "WHERE f.film_id = l.film_id) as count " +
                 "FROM film as f " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "WHERE LOWER(f.name) LIKE (?) " +
                 "ORDER BY count DESC";
         String searchStr = "%" + str.toLowerCase() + "%";
@@ -234,9 +249,10 @@ public class FilmDbStorage implements FilmStorage {
         validateUser(userId);
         validateUser(friendId);
 
-        String sqlQuery = "SELECT film.*, COUNT(LIKES.film_id) " +
+        String sqlQuery = "SELECT film.*, mpa_ratings.mpa_name, COUNT(LIKES.film_id) " +
                 "FROM film " +
-                "LEFT JOIN LIKES USING (film_id)" +
+                "LEFT JOIN LIKES USING (film_id) " +
+                "INNER JOIN mpa_ratings USING (mpa_id) " +
                 "WHERE film.film_id IN ( " +
                 "SELECT LIKES.film_id " +
                 "FROM LIKES " +

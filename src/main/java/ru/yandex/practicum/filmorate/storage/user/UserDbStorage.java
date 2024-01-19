@@ -8,14 +8,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.mapper.FeedMapper;
+import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
 
 import java.sql.Date;
@@ -169,8 +167,9 @@ public class UserDbStorage implements UserStorage {
     public List<Film> getRecommendation(int id) {
         isExist(id);
         log.info("поступил запрос на создание рекомендаций от пользователя = {}", id);
-        String sqlQuery = "SELECT *\n" +
+        String sqlQuery = "SELECT film.*, mpa_ratings.mpa_name\n" +
                 "FROM FILM\n" +
+                "INNER JOIN mpa_ratings USING (mpa_id)\n" +
                 "where FILM_ID in (SELECT l1.FILM_ID\n" +
                 "                  FROM LIKES AS l1\n" +
                 "                           RIGHT JOIN LIKES AS l2 ON l1.FILM_ID = l2.FILM_ID\n" +
