@@ -1,15 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.validation.ReleaseDateValidation;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -18,15 +17,30 @@ import java.util.Set;
 public class Film {
 
     private int id;
+
     @NotBlank
     private String name;
-    @Size(max = 200)
+
+    @NotNull
+    @Size(max = 200, message = "Описание фильма должно не более 200 символов.")
     private String description;
-    @Past
+
+    @ReleaseDateValidation(message = "Дата выхода фильма должна быть не ранее 28.12.1895.")
     private LocalDate releaseDate;
+
+    @NotNull
     @Positive
     private int duration;
+
     private Mpa mpa;
-    private List<Genre> genres;
-    private Set<Integer> likes = new HashSet<>();
+    private Set<Genre> genres;
+    private Set<Director> directors;
+
+    public void addGenreToGenresSet(Genre genre) {
+        this.genres.add(genre);
+    }
+
+    public void addDirectorToDirectorsSet(Director director) {
+        this.directors.add(director);
+    }
 }

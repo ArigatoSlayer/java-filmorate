@@ -9,8 +9,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -41,8 +40,7 @@ class FilmControllerTest {
                 .releaseDate(releaseDate)
                 .duration(duration)
                 .mpa(Mpa.builder().id(1).name("G").build())
-                .genres(new ArrayList<>())
-                .likes(new LinkedHashSet<>())
+                .genres(new HashSet<>())
                 .build();
     }
 
